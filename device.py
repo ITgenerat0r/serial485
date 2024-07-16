@@ -124,5 +124,16 @@ class device():
 		out += lr[1]
 		return out
 
+	def get_status(self):
+		lr = self.send(1399, 8)
+		out = lr[3] << 8
+		out += lr[4]
+
+	def get_codes(self):
+		lr = self.send(1399, 12)
+		out = lr[13] << 8
+		out += lr[14]
+		return out
+
 
 

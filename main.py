@@ -12,6 +12,8 @@ print("Type: ", p.get_type())
 print("Channels: ", p.get_channel_count())
 print("Software version: ", p.get_software_version())
 print("Hardware version: ", p.get_hardware_version())
+status = p.get_status()
+print("Status: ", status)
 
 
 print()
