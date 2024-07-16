@@ -106,7 +106,9 @@ class device():
 
 	def get_hardware_version(self):
 		lr = self.send_and_parse(1202, 4)
-		return lr
+		out = lr[6] << 8
+		out += lr[7]
+		return out
 
 	def get_time_from_begining(self):
 		lr = self.send_and_parse(1208, 3)
@@ -118,7 +120,9 @@ class device():
 
 	def get_type(self):
 		lr = self.send_and_parse(1201, 1)
-		return lr
+		out = lr[0] << 8
+		out += lr[1]
+		return out
 
 
 

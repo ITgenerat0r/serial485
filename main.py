@@ -20,7 +20,7 @@ print("data (1399, 12): ", rx)
 for i in rx:
 	print(hex(i))
 
-# exit(0)
+exit(0)
 
 while True:
 	reg = input("reg: ")
