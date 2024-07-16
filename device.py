@@ -128,6 +128,7 @@ class device():
 		lr = self.send(1399, 8)
 		out = lr[3] << 8
 		out += lr[4]
+		return out
 
 	def get_codes(self):
 		lr = self.send(1399, 12)

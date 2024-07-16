@@ -14,6 +14,7 @@ print("Software version: ", p.get_software_version())
 print("Hardware version: ", p.get_hardware_version())
 status = p.get_status()
 print("Status: ", status)
+print("Codes: ", p.get_codes())
 
 
 print()
