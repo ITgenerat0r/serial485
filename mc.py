@@ -1,4 +1,5 @@
-
+import serial
+from time import sleep
 
 
 class mc(object):
@@ -10,9 +11,9 @@ class mc(object):
 			print("Failed conneciton!")
 			exit(0)
 
-	def send(tx):
-		ser.write(tx)
-		time.sleep(0.05)
-		rx = ser.read_all()
+	def send(self, tx):
+		self.ser.write(tx)
+		sleep(0.05)
+		rx = self.ser.read_all()
 		return rx
 		

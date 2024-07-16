@@ -2,7 +2,7 @@ from device import *
 from mc import *
 
 
-d = device('COM8')
+d = device('COM7')
 m = mc()
 
 s_number = d.get_serial_number()
@@ -15,13 +15,13 @@ if tp in [161]:
 	for u in range(0xff):
 		m.send(b'\x00'+u.to_bytes(1)+b'\x00\x00')
 		sleep(0.1)
-		rx = p.get_codes()
+		rx = d.get_codes()
 		print(u, rx)
 	print("For I:")
 	for i in range(0xff):
 		m.send(b'\x00\x00'+i.to_bytes(1)+b'\x00')
 		sleep(0.1)
-		rx = p.get_codes()
+		rx = d.get_codes()
 		print(i, rx)
 else:
 	print("Wrong device type!")
