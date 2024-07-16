@@ -2,12 +2,12 @@ import serial
 from time import sleep
 
 class device():
-	def __init__(self):
+	def __init__(self, port='COM8'):
 		self.addr = b'\x66' # 102
 		self.cmd = b'\x04' # read inputs
 
 		# Открываем соединение
-		self.ser = serial.Serial('COM8', 115200, serial.EIGHTBITS, serial.PARITY_NONE, serial.STOPBITS_ONE)
+		self.ser = serial.Serial(port, 115200, serial.EIGHTBITS, serial.PARITY_NONE, serial.STOPBITS_ONE)
 		if self.ser.isOpen():
 			print('Connected successfully!')
 		else:
