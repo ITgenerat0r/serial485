@@ -1,4 +1,3 @@
-import requests
 import colorama
 from colorama import Fore, Back, Style
 colorama.init()
@@ -30,26 +29,6 @@ def print_time(ps="", oc=True):
 	else:
 		return now.strftime("%H:%M:%S")+" "+ps
 
-
-def get_out_ip():
-	try:
-		response = requests.get("https://2ip.ru")
-		if response.status_code != 200:
-			return "unknown"
-		t = response.text
-
-		page = str(t)
-		key = "return '"
-		index = page.find(key)
-		if index < 0:
-			return "unknown"
-		res = page[index+len(key):index+len(key)+16]
-		index = res.find("'")
-		if index:
-			res = res[:index]
-		return res
-	except Exception as e:
-		return "unknown"
 		
 
 dbgs = True

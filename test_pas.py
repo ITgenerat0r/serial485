@@ -8,7 +8,13 @@ m = mc()
 
 s_number = d.get_serial_number()
 tp = d.get_type()
+status = d.get_status()
+if status:
+	print(f"Status: {green_text(status)}")
+else:
+	print(f"Status: {red_text(status)}")
 
+exit(0)
 print(f"ID: {s_number}, type: {tp}")
 
 if tp in [161]:
