@@ -10,6 +10,10 @@ s_number = d.get_serial_number()
 print(f"Serial number: {s_number}")
 tp = d.get_type()
 print(f"Type: {tp}")
+
+print("Software version: ", d.get_software_version())
+print("Hardware version: ", d.get_hardware_version())
+
 status = d.get_status()
 if not status:
 	print(f"Status: [{green_text(status)}]")
@@ -124,3 +128,5 @@ if tp in pas_types:
 			errors += 1
 	if errors:
 		print(red_text(f"Check device ({errors}/{len(calibr)} errors)."))
+	else:
+		print(green_text(f"Everythink okay!"))
