@@ -38,13 +38,13 @@ def dbg(text=""):
 
 
 def red_text(text):
-  return Fore.RED + text + Style.RESET_ALL
+  return Fore.RED + str(text) + Style.RESET_ALL
 
 def blue_text(text):
-  return Fore.BLUE + text + Style.RESET_ALL
+  return Fore.BLUE + str(text) + Style.RESET_ALL
 
 def green_text(text):
-  return Fore.GREEN + text + Style.RESET_ALL
+  return Fore.GREEN + str(text) + Style.RESET_ALL
 
 def yellow_text(text):
-  return Fore.YELLOW + text + Style.RESET_ALL
+  return Fore.YELLOW + str(text) + Style.RESET_ALL
