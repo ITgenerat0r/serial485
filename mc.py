@@ -12,7 +12,8 @@ class mc(object):
 			exit(0)
 
 	def send(self, tx):
-		self.ser.write(tx)
+		# tx - int()
+		self.ser.write(bytes(str(tx), 'utf-8'))
 		sleep(0.05)
 		rx = self.ser.read_all()
 		return rx

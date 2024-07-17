@@ -132,6 +132,7 @@ class device():
 
 	def get_codes(self):
 		lr = self.send(1399, 12)
+		self.print_bytes(lr)
 		out = lr[13] << 8
 		out += lr[14]
 		return out
