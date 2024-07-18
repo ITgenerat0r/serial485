@@ -1,5 +1,6 @@
 import serial
 from time import sleep
+from includes import *
 
 class device():
 	def __init__(self, port='COM8'):
@@ -22,7 +23,7 @@ class device():
 		if len(res) > 1:
 			res = res[:-2]
 		res+=")"
-		print(res)
+		print(blue_text(res))
 		
 	def crc16(self, data):
 		crc = 0xFFFF 
@@ -44,22 +45,25 @@ class device():
 		result = data + chr(crc % 256).encode() + chr(crc // 256).encode('latin-1')
 		return result
 
-	def send(self, reg, n_bytes):
+	def __send(self, req):
+		tx = self.crc16(req)
+
+		print(blue_text("send: "))
+		self.print_bytes(tx)
+		self.ser.write(tx)
+		sleep(1)
+		rx = self.ser.read_all()
+		print(blue_text("received: "))
+		self.print_bytes(rx)
+		return rx
+
+	def get_bytes(self, reg, n_bytes):
 		req = b''+ self.addr + self.cmd
 		req += int(reg).to_bytes(2) + int(n_bytes).to_bytes(2)
 
 		# self.print_bytes(req)
 
-		tx = self.crc16(req)
-
-		# print("send: ")
-		# self.print_bytes(tx)
-		self.ser.write(tx)
-		sleep(1)
-		rx = self.ser.read_all()
-		# print("received: ")
-		# self.print_bytes(rx)
-		return rx
+		return self.__send(req)
 
 
 	def parse(self, data):
@@ -75,67 +79,104 @@ class device():
 			return value
 		return data
 
-	def send_and_parse(self, reg, n):
-		return self.parse(self.send(reg, n))
+	def get_bytes_and_parse(self, reg, n):
+		return self.parse(self.get_bytes(reg, n))
 		
 	def get_serial_number(self):
-		lr = self.send_and_parse(1199, 2)
-		out = lr[0] << 24
-		out += lr[1] << 16
-		out += lr[2] << 8
-		out += lr[3]
-		return out
+		lr = self.get_bytes_and_parse(1199, 2)
+		if lr:
+			out = lr[0] << 24
+			out += lr[1] << 16
+			out += lr[2] << 8
+			out += lr[3]
+			return out
+		return -1
 
 	def get_channel_count(self):
-		lr = self.send_and_parse(1215, 1)
-		out = lr[0] << 8
-		out += lr[1]
-		return out
+		lr = self.get_bytes_and_parse(1215, 1)
+		if lr:
+			out = lr[0] << 8
+			out += lr[1]
+			return out
+		return -1
 
 	def get_software_version(self):
-		lr = self.send_and_parse(1204, 2)
-		out = ""
-		for i in lr:
-			out += f"{i}."
-		if len(out):
-			out = out[:-1]
-		return out
-		# if len(r) == 9:
-		# 	return f"{r[5]}.{r[6]}.{r[3]}.{r[4]}"
-		# return "?"
+		lr = self.get_bytes_and_parse(1204, 2)
+		if lr:
+			out = ""
+			for i in lr:
+				out += f"{i}."
+			if len(out):
+				out = out[:-1]
+			return out
+		return ""
+
 
 	def get_hardware_version(self):
-		lr = self.send_and_parse(1202, 4)
-		out = lr[6] << 8
-		out += lr[7]
-		return out
+		lr = self.get_bytes_and_parse(1202, 4)
+		if lr:
+			out = lr[6] << 8
+			out += lr[7]
+			return out
+		return -1
 
 	def get_time_from_begining(self):
-		lr = self.send_and_parse(1208, 3)
+		lr = self.get_bytes_and_parse(1208, 3)
 		return lr
 
 	def get_time_all(self):
-		lr = self.send_and_parse(1206, 4)
+		lr = self.get_bytes_and_parse(1206, 4)
 		return lr
 
 	def get_type(self):
-		lr = self.send_and_parse(1201, 1)
-		out = lr[0] << 8
-		out += lr[1]
-		return out
+		lr = self.get_bytes_and_parse(1201, 1)
+		if lr:
+			out = lr[0] << 8
+			out += lr[1]
+			return out
+		return -1
 
 	def get_status(self):
-		lr = self.send(1399, 8)
-		out = lr[3] << 8
-		out += lr[4]
-		return out
+		lr = self.get_bytes(1399, 8)
+		if lr:
+			out = lr[3] << 8
+			out += lr[4]
+			return out
+		return -1
 
 	def get_codes(self):
-		lr = self.send(1399, 12)
+		lr = self.get_bytes(1399, 12)
 		# self.print_bytes(lr)
-		out = lr[13] << 8
-		out += lr[14]
-		return out
+		if lr:
+			out = lr[13] << 8
+			out += lr[14]
+			return out
+		return -1
+
+
+
+
+
+
+
+
+
+
+
+
+	def set_addr(self, addr):
+		self.addr = addr.to_bytes(1)
+
+	def set_cmd(self, cmd):
+		self.cmd = cmd.to_bytes(1)
+
+	def set_new_address(self, s_number, addr):
+		req = b'' + self.addr + b'\x65'
+		req += addr.to_bytes(1)
+		req += s_number.to_bytes(4)
+		# req += 0x0.to_bytes(4)
+		return self.__send(req)
+
 
 
 
