@@ -195,7 +195,10 @@ class device():
 
 	def reset_address(self):
 		req = b'' + self.addr + b'\x66'
-		return self.__send(req)
+		rx = self.__send(req)
+		if rx:
+			return rx[0]
+		return -1
 
 	def search_device(self):
 		rx = self.__send(b'\xf0\x64')
