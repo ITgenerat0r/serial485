@@ -5,7 +5,9 @@ from includes import *
 class device():
 	def __init__(self, port='COM8'):
 		self.addr = b'\x66' # 102
-		self.cmd = b'\x04' # read inputs
+		self.__version = "2.0"
+
+		self.__log = True
 
 		# Открываем соединение
 		self.ser = serial.Serial(port, 115200, serial.EIGHTBITS, serial.PARITY_NONE, serial.STOPBITS_ONE)
@@ -14,6 +16,13 @@ class device():
 		else:
 			print("Failed conneciton!")
 			exit(0)
+
+	def __print(self, text):
+		if self.__log:
+			print(blue_text(text))
+
+	def version():
+		return self.__version
 
 
 	def print_bytes(self, data):
@@ -42,7 +51,8 @@ class device():
 			i += 1
 		if crc < 0:
 			crc -= 256
-		result = data + chr(crc % 256).encode() + chr(crc // 256).encode('latin-1')
+		# print(yellow_text(f"crc16: {(crc&0xff).to_bytes(1)}, {chr(crc // 256).encode('latin-1')}"))
+		result = data + (crc&0xff).to_bytes(1) + chr(crc // 256).encode('latin-1')
 		return result
 
 	def __send(self, req):
@@ -58,7 +68,7 @@ class device():
 		return rx
 
 	def get_bytes(self, reg, n_bytes):
-		req = b''+ self.addr + self.cmd
+		req = b''+ self.addr + b'\x04'
 		req += int(reg).to_bytes(2) + int(n_bytes).to_bytes(2)
 
 		# self.print_bytes(req)
@@ -166,17 +176,38 @@ class device():
 
 	def set_addr(self, addr):
 		self.addr = addr.to_bytes(1)
+		self.__print(f"Set addr {self.addr}")
 
-	def set_cmd(self, cmd):
-		self.cmd = cmd.to_bytes(1)
 
 	def set_new_address(self, s_number, addr):
-		req = b'' + self.addr + b'\x65'
-		req += addr.to_bytes(1)
-		req += s_number.to_bytes(4)
-		# req += 0x0.to_bytes(4)
+		if s_number > 0 and addr > 0:
+			req = b'' + self.addr + b'\x65'
+			req += addr.to_bytes(1)
+			req += (s_number&0xffff).to_bytes(2)
+			s_number >>= 16
+			req += s_number.to_bytes(2)
+			req += 0x0.to_bytes(4)
+			rx = self.__send(req)
+			if rx:
+				return rx[0]
+		return -1
+
+
+	def reset_address(self):
+		req = b'' + self.addr + b'\x66'
 		return self.__send(req)
 
-
-
+	def search_device(self):
+		rx = self.__send(b'\xf0\x64')
+		data = self.parse(rx)
+		if data:
+			a = int(rx[0])
+			self.__print(f"addr:  {rx[0]}")
+			did = data[0]<<24
+			did += data[1]<<16
+			did += data[2]<<8
+			did += data[3]
+			self.__print(f"id: {did}")
+			return [a, did]
+		return data
 

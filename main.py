@@ -7,9 +7,9 @@ from device import *
 
 p = device('COM7')
 
+# p.set_addr(0xf0)
 s_number = p.get_serial_number()
 print("Serial number: ", s_number)
-p.set_addr(103)
 print("Type: ", p.get_type())
 print("Channels: ", p.get_channel_count())
 print("Software version: ", p.get_software_version())
@@ -20,19 +20,69 @@ print("Codes: ", p.get_codes())
 
 
 print()
-rx = p.get_bytes_and_parse(1399, 12)
-print("data (1399, 12): ", rx)
-for i in rx:
-	print(hex(i))
+# rx = p.get_bytes_and_parse(1399, 12)
+# print("data (1399, 12): ", rx)
+# for i in rx:
+# 	print(hex(i))
 
-rs = p.set_new_address(s_number, 107)
-p.set_addr(107)
-print("rs: ", rs)
 
+# print("TEST:")
+# print("reset")
+# p.reset_address()
+# print("search...")
+# print(p.search_device())
+# print("new address")
+# s_number = 0x1caa802
+# p.set_addr(0xf0)
+# rs = p.set_new_address(s_number, 103)
+# p.set_addr(103)
+# print("rs: ", rs)
+
+cm = ""
 while True:
-	reg = input("reg: ")
-	n_bytes = input("n: ")
-	result = p.get_bytes_and_parse(reg, n_bytes)
-	print("response: ", result)
-	for i in result:
-		print(hex(i))
+	cm = input("->")
+	if cm == "search":
+		print("search")
+		rx = p.search_device()
+		print(f"Address: {rx[0]} ({hex(rx[0])})")
+		print(f"Serial number: {rx[1]}")
+	elif cm == "newaddr":
+		addr = int(input("Address (for device): "))
+		print("new address")
+		s_number = 0x1caa802
+		p.set_addr(0xf0)
+		rs = p.set_new_address(s_number, addr)
+		if rs == addr:
+			p.set_addr(addr)
+			print(f"Local address changed to {addr}.")
+		print("rs: ", rs)
+	elif cm == "setaddr":
+		addr = int(input("Address (for terminal): "))
+		p.set_addr(addr)
+	elif cm == "reset":
+		print("reset")
+		p.reset_address()
+	elif cm == "get":
+		reg = input("reg: ")
+		n_bytes = input("n: ")
+		result = p.get_bytes_and_parse(reg, n_bytes)
+		print("response: ", result)
+		for i in result:
+			print(hex(i))
+	elif cm == "id":
+		s_number = p.get_serial_number()
+		print("Serial number: ", s_number)
+	elif cm == "type":
+		print("Type: ", p.get_type())
+	elif cm == "channel":
+		print("Channels: ", p.get_channel_count())
+	elif cm == "version":
+		print(f"Version: {p.version()}")
+		print("Software version: ", p.get_software_version())
+		print("Hardware version: ", p.get_hardware_version())
+	elif cm == "status":
+		print("Status: ", p.get_status())
+	elif cm == "codes":
+		print("Codes: ", p.get_codes())
+	elif cm == "exit":
+		break
