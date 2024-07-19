@@ -2,6 +2,12 @@ from device import *
 from mc import *
 from includes import *
 
+
+version = "1.0"
+
+print("Tester PAS")
+print(f"Version {version}")
+
 filename = "pas_calibr.cfg"
 d = device('COM7')
 m = mc()
@@ -25,30 +31,34 @@ else:
 calibr = {}
 pas_types = [161]
 
+# calibr
 make_calibr = False
 if make_calibr:
 	if tp in pas_types:
-		print("For U:")
-		for u in range(0x10):
-			m.send(u<<20, 1)
-			sleep(0.1)
-			rx = d.get_codes()
-			print(u, rx)
-			minrx = rx - 50
-			if minrx < 0:
-				minrx = 0
-			calibr[u<<20] = (minrx, rx+50)
 		print("For I:")
-		for i in range(0x11):
+		precision = 5
+		for i in range(0x10):
 			m.send(i<<12, 1)
 			sleep(0.1)
 			rx = d.get_codes()
-			print(i, rx)
-			minrx = rx - 500
+			print(f"{i}: {rx}")
+			prcsn = int(rx*precision/100)
+			minrx = rx - prcsn
 			if minrx < 0:
 				minrx = 0
-			calibr[i<<12] = (minrx, rx+500)
-		print(calibr)
+			calibr[i<<12] = (minrx, rx+prcsn)
+		print("For U:")
+		precision = 10
+		for u in range(0x11):
+			m.send(u<<20, 1)
+			sleep(0.1)
+			rx = d.get_codes()
+			print(f"{u}: {rx}")
+			prcsn = int(rx*precision/100)
+			minrx = rx - prcsn
+			if minrx < 0:
+				minrx = 0
+			calibr[u<<20] = (minrx, rx+prcsn)
 		f = open(filename, 'w+')
 		f.write(str(calibr))
 		f.close()
@@ -126,7 +136,10 @@ if tp in pas_types:
 		else:
 			print(f"{hex(i)}[{red_text(rx)}]({calibr[i][0]}, {calibr[i][1]})")
 			errors += 1
+	status = d.get_status()
+	if status != 0:
+		print(red_text(f"Wrong status ({status})!"))
 	if errors:
 		print(red_text(f"Check device ({errors}/{len(calibr)} errors)."))
-	else:
-		print(green_text(f"Everythink okay!"))
+	if status == 0 and errors == 0:
+		print(green_text(f"Everything okay!"))

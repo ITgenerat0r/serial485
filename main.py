@@ -7,6 +7,7 @@ from device import *
 
 p = device('COM7')
 
+
 # p.set_addr(0xf0)
 s_number = p.get_serial_number()
 print("Serial number: ", s_number)
@@ -16,7 +17,11 @@ print("Software version: ", p.get_software_version())
 print("Hardware version: ", p.get_hardware_version())
 status = p.get_status()
 print("Status: ", status)
+
+p.enable_log()
+
 print("Codes: ", p.get_codes())
+
 
 
 print()

@@ -7,14 +7,14 @@ class device():
 		self.addr = b'\x66' # 102
 		self.__version = "2.0"
 
-		self.__log = True
+		self.__log = False
 
 		# Открываем соединение
 		self.ser = serial.Serial(port, 115200, serial.EIGHTBITS, serial.PARITY_NONE, serial.STOPBITS_ONE)
 		if self.ser.isOpen():
-			print('Connected successfully!')
+			print(f"Connected to '{port}'!")
 		else:
-			print("Failed conneciton!")
+			print(f"Can't connect to '{port}'!")
 			exit(0)
 
 	def __print(self, text):
@@ -24,15 +24,19 @@ class device():
 	def version(self):
 		return self.__version
 
+	def enable_log(self, l=True):
+		self.__log = l
+
 
 	def print_bytes(self, data):
-		res = "("
-		for i in data:
-			res += f"{hex(i)}, "
-		if len(res) > 1:
-			res = res[:-2]
-		res+=")"
-		print(blue_text(res))
+		if self.__log:
+			res = "("
+			for i in data:
+				res += f"{hex(i)}, "
+			if len(res) > 1:
+				res = res[:-2]
+			res+=")"
+			print(blue_text(res))
 		
 	def crc16(self, data):
 		crc = 0xFFFF 
@@ -58,12 +62,12 @@ class device():
 	def __send(self, req):
 		tx = self.crc16(req)
 
-		print(blue_text("send: "))
+		self.__print("send: ")
 		self.print_bytes(tx)
 		self.ser.write(tx)
 		sleep(1)
 		rx = self.ser.read_all()
-		print(blue_text("received: "))
+		self.__print("received: ")
 		self.print_bytes(rx)
 		return rx
 
