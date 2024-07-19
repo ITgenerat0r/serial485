@@ -21,7 +21,7 @@ class device():
 		if self.__log:
 			print(blue_text(text))
 
-	def version():
+	def version(self):
 		return self.__version
 
 
