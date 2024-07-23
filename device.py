@@ -71,10 +71,10 @@ class device():
 		self.print_bytes(rx)
 		return rx
 
-	def get_bytes(self, reg, n_bytes, addr=''):
+	def get_bytes(self, reg, n_bytes, addr=b''):
 		if not addr:
 			addr = self.addr
-		req = b''+ addr + b'\x04'
+		req = b''+ addr.to_bytes(1) + b'\x04'
 		req += int(reg).to_bytes(2) + int(n_bytes).to_bytes(2)
 
 		# self.print_bytes(req)
@@ -95,11 +95,11 @@ class device():
 			return value
 		return data
 
-	def get_bytes_and_parse(self, reg, n):
-		return self.parse(self.get_bytes(reg, n))
+	def get_bytes_and_parse(self, reg, n, addr=''):
+		return self.parse(self.get_bytes(reg, n, addr))
 		
-	def get_serial_number(self):
-		lr = self.get_bytes_and_parse(1199, 2)
+	def get_serial_number(self, addr=''):
+		lr = self.get_bytes_and_parse(1199, 2, addr)
 		if lr:
 			out = lr[0] << 24
 			out += lr[1] << 16
@@ -108,16 +108,16 @@ class device():
 			return out
 		return -1
 
-	def get_channel_count(self):
-		lr = self.get_bytes_and_parse(1215, 1)
+	def get_channel_count(self, addr=''):
+		lr = self.get_bytes_and_parse(1215, 1, addr)
 		if lr:
 			out = lr[0] << 8
 			out += lr[1]
 			return out
 		return -1
 
-	def get_software_version(self):
-		lr = self.get_bytes_and_parse(1204, 2)
+	def get_software_version(self, addr=''):
+		lr = self.get_bytes_and_parse(1204, 2, addr)
 		if lr:
 			out = ""
 			for i in lr:
@@ -128,40 +128,40 @@ class device():
 		return ""
 
 
-	def get_hardware_version(self):
-		lr = self.get_bytes_and_parse(1202, 4)
+	def get_hardware_version(self, addr=''):
+		lr = self.get_bytes_and_parse(1202, 4, addr)
 		if lr:
 			out = lr[6] << 8
 			out += lr[7]
 			return out
 		return -1
 
-	def get_time_from_begining(self):
-		lr = self.get_bytes_and_parse(1208, 3)
+	def get_time_from_begining(self, addr=''):
+		lr = self.get_bytes_and_parse(1208, 3, addr)
 		return lr
 
-	def get_time_all(self):
-		lr = self.get_bytes_and_parse(1206, 4)
+	def get_time_all(self, addr=''):
+		lr = self.get_bytes_and_parse(1206, 4, addr)
 		return lr
 
-	def get_type(self):
-		lr = self.get_bytes_and_parse(1201, 1)
+	def get_type(self, addr=''):
+		lr = self.get_bytes_and_parse(1201, 1, addr)
 		if lr:
 			out = lr[0] << 8
 			out += lr[1]
 			return out
 		return -1
 
-	def get_status(self):
-		lr = self.get_bytes(1399, 8)
+	def get_status(self, addr=''):
+		lr = self.get_bytes(1399, 8, addr)
 		if lr:
 			out = lr[3] << 8
 			out += lr[4]
 			return out
 		return -1
 
-	def get_codes(self):
-		lr = self.get_bytes(1399, 12)
+	def get_codes(self, addr=''):
+		lr = self.get_bytes(1399, 12, addr)
 		# self.print_bytes(lr)
 		if lr:
 			out = lr[13] << 8
@@ -189,7 +189,7 @@ class device():
 		if not old_addr:
 			old_addr = self.addr
 		if s_number > 0 and addr > 0:
-			req = b'' + old_addr + b'\x65'
+			req = b'' + old_addr.to_bytes(1) + b'\x65'
 			# req = b'\xf0\x65'
 			req += addr.to_bytes(1)
 			req += (s_number&0xffff).to_bytes(2)
@@ -205,7 +205,7 @@ class device():
 	def reset_address(self, addr=''):
 		if not addr:
 			addr = self.addr
-		req = b'' + addr + b'\x66'
+		req = b'' + addr.to_bytes(1) + b'\x66'
 		rx = self.__send(req)
 		if rx:
 			return rx[0]
