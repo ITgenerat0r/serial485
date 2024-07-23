@@ -7,6 +7,11 @@ PATH_DATA = 'Data/'
 
 if not os.path.exists(PATH_DATA):
 	print(f"Path {PATH_DATA} not exist!")
+	exit(0)
+
+files = os.listdir(PATH_DATA)
+for f in files:
+	os.remove(f"{PATH_DATA}{f}")
 
 p = device('COM7')
 
