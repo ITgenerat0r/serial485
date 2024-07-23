@@ -215,6 +215,7 @@ class device():
 			did += data[2]<<8
 			did += data[3]
 			self.__print(f"id: {did}")
+			# a - address, did - serial_number
 			return [a, did]
 		return data
 
