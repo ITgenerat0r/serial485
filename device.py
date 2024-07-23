@@ -71,8 +71,10 @@ class device():
 		self.print_bytes(rx)
 		return rx
 
-	def get_bytes(self, reg, n_bytes):
-		req = b''+ self.addr + b'\x04'
+	def get_bytes(self, reg, n_bytes, addr=''):
+		if not addr:
+			addr = self.addr
+		req = b''+ addr + b'\x04'
 		req += int(reg).to_bytes(2) + int(n_bytes).to_bytes(2)
 
 		# self.print_bytes(req)
@@ -183,9 +185,12 @@ class device():
 		self.__print(f"Set addr {self.addr}")
 
 
-	def set_new_address(self, s_number, addr):
+	def set_new_address(self, s_number, addr, old_addr=''):
+		if not old_addr:
+			old_addr = self.addr
 		if s_number > 0 and addr > 0:
-			req = b'' + self.addr + b'\x65'
+			req = b'' + old_addr + b'\x65'
+			# req = b'\xf0\x65'
 			req += addr.to_bytes(1)
 			req += (s_number&0xffff).to_bytes(2)
 			s_number >>= 16
@@ -197,8 +202,10 @@ class device():
 		return -1
 
 
-	def reset_address(self):
-		req = b'' + self.addr + b'\x66'
+	def reset_address(self, addr=''):
+		if not addr:
+			addr = self.addr
+		req = b'' + addr + b'\x66'
 		rx = self.__send(req)
 		if rx:
 			return rx[0]
