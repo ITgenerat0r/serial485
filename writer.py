@@ -42,24 +42,26 @@ while True:
 	for d in devices:
 		print(f"\nFor {d} ({devices[d]}):")
 		s_number = p.get_serial_number(devices[d])
-		print(f"s_number: {s_number}")
+		print(f"  Serial number: {s_number}")
 		if s_number == -1:
 			print(f"Renew {devices[d]} address.")
 			rx = p.set_new_address(d, devices[d], 240)
 			if rx == -1:
-				print(f"Remove address {devices[d]}({s_number})")
+				print(f"    Remove address {devices[d]}({s_number})")
 				if os.path.exists(f"{PATH_DATA}{d}"):
 					os.remove(f"{PATH_DATA}{d}")
+				p.delete_device(s_number)
 				# del devices[d]
 		elif s_number != d:
-			print(f"Change address {devices[d]}({s_number})")
+			print(f"    Change address {devices[d]}({s_number})")
 			# devices[s_number] = devices[d]
 			# del devices[d]
 
 		else:
+			tp = p.get_type(devices[d])
 			stat = p.get_status(devices[d])
 			codes = p.get_codes(devices[d])
-			data = f"status:{stat}|codes:{codes}"
+			data = f"type:{tp}|status:{stat}|codes:{codes}"
 			print(data)
 			f = open(f"{PATH_DATA}{d}", 'w+')
 			f.write(str(data))
