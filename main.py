@@ -8,19 +8,19 @@ from device import *
 p = device('COM7')
 
 
-# p.set_addr(0xf0)
-s_number = p.get_serial_number()
-print("Serial number: ", s_number)
-print("Type: ", p.get_type())
-print("Channels: ", p.get_channel_count())
-print("Software version: ", p.get_software_version())
-print("Hardware version: ", p.get_hardware_version())
-status = p.get_status()
-print("Status: ", status)
 
-p.enable_log()
+# s_number = p.get_serial_number()
+# print("Serial number: ", s_number)
+# print("Type: ", p.get_type())
+# print("Channels: ", p.get_channel_count())
+# print("Software version: ", p.get_software_version())
+# print("Hardware version: ", p.get_hardware_version())
+# status = p.get_status()
+# print("Status: ", status)
 
-print("Codes: ", p.get_codes())
+# p.enable_log()
+
+# print("Codes: ", p.get_codes())
 
 
 
@@ -52,9 +52,10 @@ while True:
 		print(f"Address: {rx[0]} ({hex(rx[0])})")
 		print(f"Serial number: {rx[1]}")
 	elif cm == "newaddr":
+		s_number = int(input("Serial number: "))
 		addr = int(input("Address (for device): "))
 		print("new address")
-		s_number = 0x1caa802
+		# s_number = 0x1caa802
 		p.set_addr(0xf0)
 		rs = p.set_new_address(s_number, addr)
 		if rs == addr:
