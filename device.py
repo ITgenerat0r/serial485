@@ -7,7 +7,7 @@ class device():
 		self.__addr = b'\x66' # 102
 
 		self.__devices = {}
-		self.__addresses = set()
+		self.__addresses = {}
 		self.__addr_counter = 103
 
 		self.__version = "2.0"
@@ -139,6 +139,8 @@ class device():
 				out += f"{i}."
 			if len(out):
 				out = out[:-1]
+			if addr in self.__addresses:
+				self.set_device_field(self.__addresses[addr], 'software', out)
 			return out
 		return ""
 
@@ -148,6 +150,8 @@ class device():
 		if lr:
 			out = lr[6] << 8
 			out += lr[7]
+			if addr in self.__addresses:
+				self.set_device_field(self.__addresses[addr], 'hardware', out)
 			return out
 		return -1
 
@@ -164,6 +168,8 @@ class device():
 		if lr:
 			out = lr[0] << 8
 			out += lr[1]
+			if addr in self.__addresses:
+				self.set_device_field(self.__addresses[addr], 'type', out)
 			return out
 		return -1
 
@@ -261,10 +267,31 @@ class device():
 
 
 	def get_devices(self):
-		return self.__devices
+		res  = []
+		for d in self.__devices:
+			res.append(d)
+		return res
+
+	def set_device_field(self, number, field='address', value = 0):
+		if not number in self.__devices:
+			self.__devices[number] = {}
+		self.__devices[number][field] = value
+
+
+	def get_device_field(self, number, field='address'):
+		if number in self.__devices:
+			if field in self.__devices[number]:
+				return self.__devices[number][field]
+		return -1
 
 	def delete_device(self, number):
 		del self.__devices[number]
+
+	def get_device_type(self, number):
+		return self.get_device_field(number, 'type')
+
+	def get_device_address(self, number):
+		return self.get_device_field(number)
 
 
 	def search_all(self):
@@ -276,32 +303,35 @@ class device():
 			if device:
 				if device[0] == 102 or device[0] == 240:
 					if device[1] in self.__devices: # already in devices
-						rx = self.set_new_address(device[1], self.__devices[device[1]], device[0])
-						if rx != self.__devices[device[1]]:
-							print(f"Error, during regain address {device[1]} - {self.__devices[device[1]]}")
+						rx = self.set_new_address(device[1], self.get_device_field(device[1]), device[0])
+						if rx != self.get_device_field(device[1]):
+							print(f"Error, during regain address {device[1]} - {self.get_device_field(device[1])}")
 					else: # add to devices
 						rx = self.set_new_address(device[1], self.__addr_counter, device[0])
 						if rx == self.__addr_counter:
-							self.__devices[device[1]] = rx
-							self.__addresses.add(self.__addr_counter)
+							# self.__devices[device[1]]['address'] = rx
+							self.set_device_field(device[1], 'address', rx)
+							self.__addresses[self.__addr_counter] = device[1]
 						else:
 							print("Error, during change address.")
 				else:
 					if device[1] < 100000000: 
 						if device[1] in self.__devices:
-							if self.__devices[device[1]] != device[0]:
+							if self.__devices[device[1]]['address'] != device[0]:
 								print("How can this be possible?")
 						else:
 							if device[0] in self.__addresses:
 								rx = self.set_new_address(device[1], self.__addr_counter, device[0])
 								if rx == self.__addr_counter:
-									self.__devices[device[1]] = rx
-									self.__addresses.add(self.__addr_counter)
+									# self.__devices[device[1]]['address'] = rx
+									self.set_device_field(device[1], 'address', rx)
+									self.__addresses[self.__addr_counter] = device[1]
 								else:
 									print("Error, during change address.")
 							else:
-								self.__devices[device[1]] = device[0]
-								self.__addresses.add(device[0])
+								# self.__devices[device[1]]['address'] = device[0]
+								self.set_device_field(device[1], 'address', device[0])
+								self.__addresses[device[0]] = device[1]
 					if self.__addr == b'\x66':
 						self.__addr = b'\xf0'
 					else:
