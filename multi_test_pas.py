@@ -90,10 +90,11 @@ calibr = parse_config(strdata)
 
 
 
-
-os.system('cls')
-p.search_all()
-p.print_devices()
+for i in range(5):
+	os.system('cls')
+	p.search_all()
+	p.print_devices()
+	sleep(1)
 
 devices = p.get_devices()
 
@@ -128,7 +129,7 @@ for d in devices:
 
 		print(f"Serial number: {s_number}")
 		print(f"Type: {tp}")
-		print(f"Software version: {soft}")
+		print(f"Software version: {yellow_text(soft)}")
 		print(f"Hardware version: {hard}")
 		
 		if not stat:
