@@ -145,8 +145,8 @@ for d in devices:
 p.print_devices()
 
 for i in calibr:
-	m.send(i, 0.5)
-	sleep(0.1)
+	m.send(i, 1)
+	sleep(1)
 	for d in devices:
 		addr = p.get_device_address(d)
 		rx = p.get_codes(addr)
@@ -155,6 +155,7 @@ for i in calibr:
 		else:
 			print(f"{d}: {hex(i)}[{red_text(rx)}]({calibr[i][0]}, {calibr[i][1]})")
 			p.set_device_field(d, 'errors', p.get_device_field(d, 'errors')+1)
+	print()
 m.send(0, 0.5)
 
 for d in devices:

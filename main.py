@@ -1,13 +1,27 @@
 
 from device import *
+from mc import *
 
 
 
 
 
 p = device('COM7')
+m = mc()
 
-
+def hex_from_str(row):
+	res = 0
+	for i in row:
+		cd = ord(i)
+		if cd in {48, 49, 50, 51, 52, 53, 54, 55, 56, 57}:
+			if res:
+				res = res << 4
+			res += cd - 48
+		elif cd in {97, 98, 99, 100, 101, 102}:
+			if res:
+				res = res << 4
+			res += cd - 87
+	return res
 
 # s_number = p.get_serial_number()
 # print("Serial number: ", s_number)
@@ -90,5 +104,10 @@ while True:
 		print("Status: ", p.get_status())
 	elif cm == "codes":
 		print("Codes: ", p.get_codes())
+
+	elif cm == "mc":
+		data = input("codes:")
+		idata = hex_from_str(data)
+		m.send(idata, 1)
 	elif cm == "exit":
 		break
