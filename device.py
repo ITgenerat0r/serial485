@@ -285,7 +285,8 @@ class device():
 		return -1
 
 	def delete_device(self, number):
-		del self.__devices[number]
+		if number in self.__devices:
+			del self.__devices[number]
 
 	def get_device_type(self, number):
 		return self.get_device_field(number, 'type')

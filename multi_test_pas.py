@@ -112,6 +112,8 @@ for d in devices:
 			if os.path.exists(f"{PATH_DATA}{d}"):
 				os.remove(f"{PATH_DATA}{d}")
 			p.delete_device(s_number)
+			if s_number in devices:
+				del devices[s_number]
 			# del devices[d]
 		else:
 			s_number = rx
@@ -148,23 +150,26 @@ for i in calibr:
 	m.send(i, 1)
 	sleep(1)
 	for d in devices:
-		addr = p.get_device_address(d)
-		rx = p.get_codes(addr)
-		if rx >= calibr[i][0] and rx <= calibr[i][1]:
-			print(f"{d}: {hex(i)}[{green_text(rx)}]({calibr[i][0]}, {calibr[i][1]})")
-		else:
-			print(f"{d}: {hex(i)}[{red_text(rx)}]({calibr[i][0]}, {calibr[i][1]})")
-			p.set_device_field(d, 'errors', p.get_device_field(d, 'errors')+1)
+		if p.get_device_type(d) >= 0:
+			addr = p.get_device_address(d)
+			rx = p.get_codes(addr)
+			if rx >= calibr[i][0] and rx <= calibr[i][1]:
+				print(f"{d}: {hex(i)}[{green_text(rx)}]({calibr[i][0]}, {calibr[i][1]})")
+			else:
+				print(f"{d}: {hex(i)}[{red_text(rx)}]({calibr[i][0]}, {calibr[i][1]})")
+				p.set_device_field(d, 'errors', p.get_device_field(d, 'errors')+1)
 	print()
-m.send(0, 0.5)
+m.send(0, 1)
+
 
 for d in devices:
-	addr = p.get_device_address(d)
-	status = p.get_status(addr)
-	errors = p.get_device_field(d, 'errors')
-	if status != 0:
-		print(red_text(f"({d}) Wrong status ({status})!"))
-	if errors:
-		print(red_text(f"({d}) Check device ({errors}/{len(calibr)} errors)."))
-	if status == 0 and errors == 0:
-		print(green_text(f"({d}) Everything okay!"))
+	if p.get_device_type(d) >= 0:
+		addr = p.get_device_address(d)
+		status = p.get_status(addr)
+		errors = p.get_device_field(d, 'errors')
+		if status != 0:
+			print(red_text(f"({d}) Wrong status ({status})!"))
+		if errors:
+			print(red_text(f"({d}) Check device ({errors}/{len(calibr)} errors)."))
+		if status == 0 and errors == 0:
+			print(green_text(f"({d}) Everything okay!"))
