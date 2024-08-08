@@ -156,12 +156,22 @@ class device():
 		return -1
 
 	def get_time_from_begining(self, addr=''):
-		lr = self.get_bytes_and_parse(1208, 3, addr)
-		return lr
+		lr = self.get_bytes_and_parse(1208, 1, addr)
+		if lr:
+			out = lr[0] << 8
+			out += lr[1]
+			return out
+		return -1
 
 	def get_time_all(self, addr=''):
-		lr = self.get_bytes_and_parse(1206, 4, addr)
-		return lr
+		lr = self.get_bytes_and_parse(1206, 2, addr)
+		if lr:
+			out = lr[0] << 24
+			out += lr[1] << 16
+			out += lr[2] << 8
+			out += lr[3]
+			return out
+		return -1
 
 	def get_type(self, addr=''):
 		lr = self.get_bytes_and_parse(1201, 1, addr)

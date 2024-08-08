@@ -6,7 +6,7 @@ from includes import *
 
 
 version = "2.0"
-filename = "pas_calibr.cfg"
+filename = "short_pas_calibr.cfg"
 
 PATH_DATA = 'Data/'
 
@@ -123,16 +123,21 @@ for d in devices:
 		# del devices[d]
 
 	else:
-		tp = p.get_type(p.get_device_address(d))
-		stat = p.get_status(p.get_device_address(d))
-		soft = p.get_software_version(p.get_device_address(d))
-		hard = p.get_hardware_version(p.get_device_address(d))
-		codes = p.get_codes(p.get_device_address(d))
+		address = p.get_device_address(d) 
+		tp = p.get_type(address)
+		stat = p.get_status(address)
+		soft = p.get_software_version(address)
+		hard = p.get_hardware_version(address)
+		codes = p.get_codes(address)
+		time_work = p.get_time_all(address)
+		time_begin = p.get_time_from_begining(address)
 
 		print(f"Serial number: {s_number}")
 		print(f"Type: {tp}")
 		print(f"Software version: {yellow_text(soft)}")
 		print(f"Hardware version: {hard}")
+		print(f"Время наработки: {yellow_text(time_work)}")
+		print(f"Время с момента включения {yellow_text(time_begin)}")
 		
 		if not stat:
 			print(f"Status: [{green_text(stat)}]")
