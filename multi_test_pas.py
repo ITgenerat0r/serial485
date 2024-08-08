@@ -170,6 +170,6 @@ for d in devices:
 		if status != 0:
 			print(red_text(f"({d}) Wrong status ({status})!"))
 		if errors:
-			print(red_text(f"({d}) Check device ({errors}/{len(calibr)} errors)."))
+			print(red_text(f"({d}) check device ({len(calibr) - errors}/{len(calibr)} tests passed)."))
 		if status == 0 and errors == 0:
 			print(green_text(f"({d}) Everything okay!"))
