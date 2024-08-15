@@ -7,7 +7,7 @@ from sys import argv
 
 
 version = "2.0"
-filename = "pas_calibr.cfg"
+filename = "short_pas_calibr.cfg"
 
 PATH_DATA = 'Data/'
 
@@ -127,6 +127,8 @@ for d in devices:
 			if os.path.exists(f"{PATH_DATA}{d}"):
 				os.remove(f"{PATH_DATA}{d}")
 			p.delete_device(s_number)
+			if s_number in devices:
+				del devices[s_number]
 			# del devices[d]
 		else:
 			s_number = rx
@@ -136,16 +138,21 @@ for d in devices:
 		# del devices[d]
 
 	else:
-		tp = p.get_type(p.get_device_address(d))
-		stat = p.get_status(p.get_device_address(d))
-		soft = p.get_software_version(p.get_device_address(d))
-		hard = p.get_hardware_version(p.get_device_address(d))
-		codes = p.get_codes(p.get_device_address(d))
+		address = p.get_device_address(d) 
+		tp = p.get_type(address)
+		stat = p.get_status(address)
+		soft = p.get_software_version(address)
+		hard = p.get_hardware_version(address)
+		codes = p.get_codes(address)
+		time_work = p.get_time_all(address)
+		time_begin = p.get_time_from_begining(address)
 
 		print(f"Serial number: {s_number}")
 		print(f"Type: {tp}")
 		print(f"Software version: {yellow_text(soft)}")
 		print(f"Hardware version: {hard}")
+		print(f"Время наработки: {yellow_text(time_work)}")
+		print(f"Время с момента включения {yellow_text(time_begin)}")
 		
 		if not stat:
 			print(f"Status: [{green_text(stat)}]")
@@ -160,25 +167,29 @@ for d in devices:
 p.print_devices()
 
 for i in calibr:
-	m.send(i, 0.5)
-	sleep(0.1)
+	m.send(i, 1)
+	sleep(1)
 	for d in devices:
-		addr = p.get_device_address(d)
-		rx = p.get_codes(addr)
-		if rx >= calibr[i][0] and rx <= calibr[i][1]:
-			print(f"{d}: {hex(i)}[{green_text(rx)}]({calibr[i][0]}, {calibr[i][1]})")
-		else:
-			print(f"{d}: {hex(i)}[{red_text(rx)}]({calibr[i][0]}, {calibr[i][1]})")
-			p.set_device_field(d, 'errors', p.get_device_field(d, 'errors')+1)
-m.send(0, 0.5)
+		if p.get_device_type(d) >= 0:
+			addr = p.get_device_address(d)
+			rx = p.get_codes(addr)
+			if rx >= calibr[i][0] and rx <= calibr[i][1]:
+				print(f"{d}: {hex(i)}[{green_text(rx)}]({calibr[i][0]}, {calibr[i][1]})")
+			else:
+				print(f"{d}: {hex(i)}[{red_text(rx)}]({calibr[i][0]}, {calibr[i][1]})")
+				p.set_device_field(d, 'errors', p.get_device_field(d, 'errors')+1)
+	print()
+m.send(0, 1)
+
 
 for d in devices:
-	addr = p.get_device_address(d)
-	status = p.get_status(addr)
-	errors = p.get_device_field(d, 'errors')
-	if status != 0:
-		print(red_text(f"({d}) Wrong status ({status})!"))
-	if errors:
-		print(red_text(f"({d}) Check device ({errors}/{len(calibr)} errors)."))
-	if status == 0 and errors == 0:
-		print(green_text(f"({d}) Everything okay!"))
+	if p.get_device_type(d) >= 0:
+		addr = p.get_device_address(d)
+		status = p.get_status(addr)
+		errors = p.get_device_field(d, 'errors')
+		if status != 0:
+			print(red_text(f"({d}) Wrong status ({status})!"))
+		if errors:
+			print(red_text(f"({d}) check device ({len(calibr) - errors}/{len(calibr)} tests passed)."))
+		if status == 0 and errors == 0:
+			print(green_text(f"({d}) Everything okay!"))
