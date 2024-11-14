@@ -16,7 +16,6 @@ if not os.path.exists(PATH_DATA):
 
 
 
-
 print("Tester PAS")
 print(f"Version {version}")
 
@@ -24,9 +23,12 @@ print(f"Version {version}")
 files = os.listdir(PATH_DATA)
 for f in files:
 	os.remove(f"{PATH_DATA}{f}")
-
-p = device('COM7')
+	
 m = mc()
+p = device()
+
+
+input("pause")
 
 
 # devices[30058498] = 102
@@ -100,6 +102,7 @@ devices = p.get_devices()
 
 print(f"Finded {len(devices)} devices.")
 
+# Titles
 for d in devices:
 	print(f"\nFor {d} ({p.get_device_address(d)}):")
 	s_number = p.get_serial_number(p.get_device_address(d))

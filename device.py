@@ -1,6 +1,7 @@
 import serial
 from time import sleep
 from includes import *
+import serial.tools.list_ports
 
 class device():
 	def __init__(self, port='COM8'):
@@ -14,14 +15,43 @@ class device():
 		self.__response_delay = 0.2
 
 		self.__log = False
+		self.__port_description = "USB Serial Port"
 
 		# Открываем соединение
-		self.__ser = serial.Serial(port, 115200, serial.EIGHTBITS, serial.PARITY_NONE, serial.STOPBITS_ONE)
-		if self.__ser.isOpen():
+		self.__ser = None
+
+		if not self.open(port):
+			self.__find_port()
+
+
+	def __find_port(self):
+		ports = serial.tools.list_ports.comports()
+		for port in ports:
+			pt = f"{port}"
+			x = pt.find(self.__port_description)
+			if x >= 0:
+				b = pt.rfind('(')
+				e = pt.rfind(')')
+				if b >= 0 and e >= 0:
+					print(f"Try: {pt}")
+					if self.open(pt[b+1:e]):
+						break
+
+	def open(self, port='COM8'):
+		try:
+			self.__ser = serial.Serial(port, 115200, serial.EIGHTBITS, serial.PARITY_NONE, serial.STOPBITS_ONE)
+		except Exception as e:
+			print(f"Error: {e}")
+		
+		if self.__ser and self.__ser.isOpen():
 			print(f"Connected to '{port}'!")
+			return True
 		else:
 			print(f"Can't connect to '{port}'!")
-			exit(0)
+			return False
+
+
+
 
 	def __print(self, text):
 		if self.__log:
@@ -69,16 +99,18 @@ class device():
 		return result
 
 	def __send(self, req):
-		tx = self.crc16(req)
+		if self.__ser:
+			tx = self.crc16(req)
 
-		self.__print("send: ")
-		self.print_bytes(tx)
-		self.__ser.write(tx)
-		sleep(self.__response_delay)
-		rx = self.__ser.read_all()
-		self.__print("received: ")
-		self.print_bytes(rx)
-		return rx
+			self.__print("send: ")
+			self.print_bytes(tx)
+			self.__ser.write(tx)
+			sleep(self.__response_delay)
+			rx = self.__ser.read_all()
+			self.__print("received: ")
+			self.print_bytes(rx)
+			return rx
+		return ""
 
 	def get_bytes(self, reg, n_bytes, addr=b''):
 		if not addr:
@@ -308,6 +340,7 @@ class device():
 	def search_all(self):
 		self.__addr = b'\x66'
 		running = True
+		overcount = 100
 		while running:
 			device = self.search_device()
 			print(f"Finded: {device}")
@@ -357,5 +390,9 @@ class device():
 				while self.__addr_counter in self.__addresses:
 					if self.__addr_counter < 240:
 						self.__addr_counter += 1
+			if not overcount:
+				break
+			else:
+				overcount -= 1
 
 

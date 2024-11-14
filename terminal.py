@@ -1,13 +1,14 @@
 
 from device import *
 from mc import *
+import os
 
 
 
 
-
-p = device('COM7')
 m = mc()
+p = device('COM7')
+
 
 def hex_from_str(row):
 	res = 0
@@ -37,8 +38,11 @@ def hex_from_str(row):
 # print("Codes: ", p.get_codes())
 
 
-
-print()
+for i in range(5):
+	os.system('cls')
+	p.search_all()
+	p.print_devices()
+	sleep(1)
 # rx = p.get_bytes_and_parse(1399, 12)
 # print("data (1399, 12): ", rx)
 # for i in rx:
