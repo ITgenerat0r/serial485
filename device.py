@@ -102,6 +102,7 @@ class device():
 		if self.__ser:
 			tx = self.crc16(req)
 
+			self.__log = True # debug
 			self.__print("send: ")
 			self.print_bytes(tx)
 			self.__ser.write(tx)
@@ -109,6 +110,7 @@ class device():
 			rx = self.__ser.read_all()
 			self.__print("received: ")
 			self.print_bytes(rx)
+			self.__log = False # debug
 			return rx
 		return ""
 
@@ -145,7 +147,7 @@ class device():
 	def get_bytes_and_parse(self, reg, n, addr=''):
 		return self.parse(self.get_bytes(reg, n, addr))
 		
-	def get_serial_number(self, addr=''):
+	def get_serial_number(self, addr=b''):
 		lr = self.get_bytes_and_parse(1199, 2, addr)
 		if lr:
 			out = lr[0] << 24
@@ -343,7 +345,7 @@ class device():
 		overcount = 100
 		while running:
 			device = self.search_device()
-			print(f"Finded: {device}")
+			self.__print(f"Finded: {device}")
 			if device:
 				if device[0] == 102 or device[0] == 240:
 					if device[1] in self.__devices: # already in devices
