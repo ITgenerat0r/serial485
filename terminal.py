@@ -78,9 +78,10 @@ while True:
 	elif cmd.get(0) == "get":
 		addr = cmd.get_int(position=1, default=0, request="address: ")
 		reg = cmd.get_int(2, 0, "reg: ")
-		n_bytes = cmd.get_int(1, 0, "n bytes: ")
+		n_bytes = cmd.get_int(3, 0, "n bytes: ")
 		p.search_all()
-		result = p.get_bytes_and_parse(reg, n_bytes, addr.to_bytes(2))
+		print(f"reg: {reg}\nbytes: {n_bytes}")
+		result = p.get_bytes_and_parse(reg, n_bytes, addr.to_bytes())
 		print("response: ", result)
 		for i in result:
 			print(hex(i))
@@ -111,6 +112,11 @@ while True:
 		addr = cmd.get_int(1, request="Address: ")
 		p.search_all()
 		print("Codes: ", p.get_codes(addr.to_bytes()))
+	elif cmd.get(0) == "data":
+		addr = cmd.get_int(1, request="Address: ")
+		p.search_all()
+		print("Result:")
+		print(p.get_data(addr))
 
 	elif cmd.get(0) == "mc":
 		data = cmd.get(1, request="codes:")
