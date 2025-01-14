@@ -3,6 +3,7 @@ from mc import *
 from time import sleep
 import os
 from includes import *
+from sys import argv
 
 
 version = "2.0"
@@ -10,11 +11,25 @@ filename = "short_pas_calibr.cfg"
 
 PATH_DATA = 'Data/'
 
+com_rs485 = 8
+com_arduino = 10
+
 if not os.path.exists(PATH_DATA):
 	print(f"Path {PATH_DATA} not exist!")
-	exit(0)
+	os.system('mkdir Data')
+	PATH_DATA = "Data/"
 
 
+for a in argv:
+	ind = a.find('=')
+	if ind >= 0:
+		key = a[:ind]
+		value = a[ind+1:]
+		print(f"{key}: {value}")
+		if key == "mc":
+			com_arduino = value
+		elif key == "rs":
+			com_rs485 = value
 
 print("Tester PAS")
 print(f"Version {version}")
@@ -23,12 +38,12 @@ print(f"Version {version}")
 files = os.listdir(PATH_DATA)
 for f in files:
 	os.remove(f"{PATH_DATA}{f}")
-	
-m = mc()
-p = device()
 
 
-input("pause")
+
+p = device(f"COM{com_rs485}")
+m = mc(f"COM{com_arduino}")
+
 
 
 # devices[30058498] = 102
