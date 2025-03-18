@@ -4,9 +4,10 @@ from time import sleep
 import os
 from includes import *
 from sys import argv
+import sys
 
 
-version = "2.0"
+version = "2.1"
 filename = "short_pas_calibr.cfg"
 
 PATH_DATA = 'Data/'
@@ -20,7 +21,14 @@ if not os.path.exists(PATH_DATA):
 	PATH_DATA = "Data/"
 
 
+help_text = f" Version {version}\n"
+help_text += f"  rs=*, where * is number for COM port for RS485 device (default = 8)\n"
+help_text += f"  mc=*, where * is number for COM port for controller (default = 10)\n"
+
 for a in argv:
+	if a == "-help":
+		print(help_text)
+		sys.exit()
 	ind = a.find('=')
 	if ind >= 0:
 		key = a[:ind]
@@ -41,7 +49,7 @@ for f in files:
 	os.remove(f"{PATH_DATA}{f}")
 
 p = device(f"COM{com_rs485}")
-m = mc(f"COM{com_arduino}")
+
 
 
 # devices[30058498] = 102
@@ -166,30 +174,34 @@ for d in devices:
 
 p.print_devices()
 
-for i in calibr:
-	m.send(i, 1)
-	sleep(1)
+
+
+if f"{com_arduino}" != "0":
+	m = mc(f"COM{com_arduino}")
+	for i in calibr:
+		m.send(i, 1)
+		sleep(1)
+		for d in devices:
+			if p.get_device_type(d) >= 0:
+				addr = p.get_device_address(d)
+				rx = p.get_codes(addr)
+				if rx >= calibr[i][0] and rx <= calibr[i][1]:
+					print(f"{d}: {hex(i)}[{green_text(rx)}]({calibr[i][0]}, {calibr[i][1]})")
+				else:
+					print(f"{d}: {hex(i)}[{red_text(rx)}]({calibr[i][0]}, {calibr[i][1]})")
+					p.set_device_field(d, 'errors', p.get_device_field(d, 'errors')+1)
+		print()
+	m.send(0, 1)
+
+
 	for d in devices:
 		if p.get_device_type(d) >= 0:
 			addr = p.get_device_address(d)
-			rx = p.get_codes(addr)
-			if rx >= calibr[i][0] and rx <= calibr[i][1]:
-				print(f"{d}: {hex(i)}[{green_text(rx)}]({calibr[i][0]}, {calibr[i][1]})")
-			else:
-				print(f"{d}: {hex(i)}[{red_text(rx)}]({calibr[i][0]}, {calibr[i][1]})")
-				p.set_device_field(d, 'errors', p.get_device_field(d, 'errors')+1)
-	print()
-m.send(0, 1)
-
-
-for d in devices:
-	if p.get_device_type(d) >= 0:
-		addr = p.get_device_address(d)
-		status = p.get_status(addr)
-		errors = p.get_device_field(d, 'errors')
-		if status != 0:
-			print(red_text(f"({d}) Wrong status ({status})!"))
-		if errors:
-			print(red_text(f"({d}) check device ({len(calibr) - errors}/{len(calibr)} tests passed)."))
-		if status == 0 and errors == 0:
-			print(green_text(f"({d}) Everything okay!"))
+			status = p.get_status(addr)
+			errors = p.get_device_field(d, 'errors')
+			if status != 0:
+				print(red_text(f"({d}) Wrong status ({status})!"))
+			if errors:
+				print(red_text(f"({d}) check device ({len(calibr) - errors}/{len(calibr)} tests passed)."))
+			if status == 0 and errors == 0:
+				print(green_text(f"({d}) Everything okay!"))
