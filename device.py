@@ -1,27 +1,59 @@
 import serial
 from time import sleep
 from includes import *
+import serial.tools.list_ports
+import os
 
 class device():
 	def __init__(self, port='COM8'):
 		self.__addr = b'\x66' # 102
+		self.__conf_fld = "config"
 
 		self.__devices = {}
 		self.__addresses = {}
 		self.__addr_counter = 103
 
-		self.__version = "2.0"
+		self.__version = "2.1"
 		self.__response_delay = 0.2
 
 		self.__log = False
+		self.__port_description = "USB Serial Port"
 
 		# Открываем соединение
-		self.__ser = serial.Serial(port, 115200, serial.EIGHTBITS, serial.PARITY_NONE, serial.STOPBITS_ONE)
-		if self.__ser.isOpen():
+		self.__ser = None
+
+		if not self.open(port):
+			self.__find_port()
+
+
+	def __find_port(self):
+		ports = serial.tools.list_ports.comports()
+		for port in ports:
+			pt = f"{port}"
+			x = pt.find(self.__port_description)
+			if x >= 0:
+				b = pt.rfind('(')
+				e = pt.rfind(')')
+				if b >= 0 and e >= 0:
+					print(f"Try: {pt}")
+					if self.open(pt[b+1:e]):
+						break
+
+	def open(self, port='COM8'):
+		try:
+			self.__ser = serial.Serial(port, 115200, serial.EIGHTBITS, serial.PARITY_NONE, serial.STOPBITS_ONE)
+		except Exception as e:
+			print(f"Error: {e}")
+		
+		if self.__ser and self.__ser.isOpen():
 			print(f"Connected to '{port}'!")
+			return True
 		else:
 			print(f"Can't connect to '{port}'!")
-			exit(0)
+			return False
+
+
+
 
 	def __print(self, text):
 		if self.__log:
@@ -69,23 +101,30 @@ class device():
 		return result
 
 	def __send(self, req):
-		tx = self.crc16(req)
+		if self.__ser:
+			tx = self.crc16(req)
 
-		self.__print("send: ")
-		self.print_bytes(tx)
-		self.__ser.write(tx)
-		sleep(self.__response_delay)
-		rx = self.__ser.read_all()
-		self.__print("received: ")
-		self.print_bytes(rx)
-		return rx
+			self.__log = True # debug
+			self.__print("send: ")
+			self.print_bytes(tx)
+			self.__ser.write(tx)
+			sleep(self.__response_delay)
+			rx = self.__ser.read_all()
+			self.__print("received: ")
+			self.print_bytes(rx)
+			self.__log = False # debug
+			return rx
+		return ""
 
-	def get_bytes(self, reg, n_bytes, addr=b''):
+	def get_bytes(self, reg, n_bytes, addr=b'', storage="input"):
 		if not addr:
 			addr = self.__addr
 		if str(type(addr)) == "<class 'int'>":
 			addr = addr.to_bytes(1)
-		req = b''+ addr + b'\x04'
+		strg = b'\x04'
+		if storage == "holding":
+			strg = b'\x03'
+		req = b''+ addr + strg
 		req += int(reg).to_bytes(2) + int(n_bytes).to_bytes(2)
 
 		# self.print_bytes(req)
@@ -110,10 +149,10 @@ class device():
 			return value
 		return data
 
-	def get_bytes_and_parse(self, reg, n, addr=''):
-		return self.parse(self.get_bytes(reg, n, addr))
+	def get_bytes_and_parse(self, reg, n, addr='', storage="input"):
+		return self.parse(self.get_bytes(reg, n, addr, storage))
 		
-	def get_serial_number(self, addr=''):
+	def get_serial_number(self, addr=b''):
 		lr = self.get_bytes_and_parse(1199, 2, addr)
 		if lr:
 			out = lr[0] << 24
@@ -308,9 +347,10 @@ class device():
 	def search_all(self):
 		self.__addr = b'\x66'
 		running = True
+		overcount = 100
 		while running:
 			device = self.search_device()
-			print(f"Finded: {device}")
+			self.__print(f"Finded: {device}")
 			if device:
 				if device[0] == 102 or device[0] == 240:
 					if device[1] in self.__devices: # already in devices
@@ -357,5 +397,124 @@ class device():
 				while self.__addr_counter in self.__addresses:
 					if self.__addr_counter < 240:
 						self.__addr_counter += 1
+			if not overcount:
+				break
+			else:
+				overcount -= 1
 
 
+
+
+
+
+	def _parse_type(self, tp):
+		if tp in ['int16', 'uint16']:
+			return 1
+		if tp in ['int32', 'uint32', 'float']:
+			return 2
+		if tp in ['double']:
+			return 4
+		print(red_text(f"Unknown type <{tp}>!"))
+		return 1
+
+	def parse_field(self, data, fld, shift=False):
+		fnd = f'{fld}="'
+		if shift:
+			fnd = f'{fld} = "'
+		ind_b = data.find(fnd)
+		if ind_b >= 0:
+			step = ind_b + len(fnd)
+			ind_e = data[step:].find('"')
+			if ind_e >= 0:
+				return data[step:step+ind_e]
+		return ""
+
+	def parse_register(self, data):
+		id = self.parse_field(data, 'id', True)
+		res = {}
+		res['title'] = self.parse_field(data, 'title', True)
+		res['storage'] = self.parse_field(data, 'storage', True)
+		res['addr'] = self.parse_field(data, 'addr', True)
+		res['ln'] = self._parse_type(self.parse_field(data, 'type', True))
+		return (id, res)
+
+	def cut_register(self, data):
+		reg = ""
+		ind_b = data.find("<register")
+		ind_e = data.find("/>")
+		if ind_b >= 0 and ind_e >= 0:
+			reg = data[ind_b:ind_e+2]
+			data = data[ind_e+2:]
+		return (reg, data)
+
+	def _cutter(self, data, index):
+		res = ""
+		sens = {}
+		if index >= 0:
+			b_ind = data[:index].rfind("<sensor")
+			e_ind = data[index:].find("</sensor>")
+			if b_ind >= 0 and e_ind >= 0:
+				res = data[b_ind:index+e_ind]
+				sens['name'] = self.parse_field(res, 'name')
+				sens['base'] = self.parse_field(res, 'base')
+				sens['inputs'] = {}
+				sens['holdings'] = {}
+				while True:
+					(reg, res) = self.cut_register(res)
+					# print(blue_text(f"|{reg}|"))
+					if len(reg) == 0:
+						break
+					(nm, params) = self.parse_register(reg)
+					if params['storage'] == "input":
+						sens['inputs'][nm] = params
+					else:
+						sens['holdings'][nm] = params
+					# print(blue_text(res))
+				# print(sens)
+		# print(f"res: {res}")
+		return sens
+
+
+	def parse_config(self, fld, tp):
+		fnd = f'type="{tp}"'
+		# print(f"Finding: {fnd}")
+		data = []
+		for s in os.listdir(fld):
+			fnm = f"{fld}/{s}"
+			if os.path.isdir(os.path.abspath(fnm)):
+				# print(yellow_text(s))
+				data += self.parse_config(fnm, tp)
+			else:
+				if s.find(".config") >= 0:
+					# print(green_text(s))
+					f = open(fnm, "rb")
+					dt = f.read().decode('utf-8')
+					f.close()
+					mp = self._cutter(dt, dt.find(fnd))
+					if mp:
+						data.append(mp)
+				# else:
+					# print(red_text(s))
+		return data
+
+	def get_data(self, addr=''):
+		tp = self.get_type(addr)
+		res = f"type: {addr}"
+		sensors = self.parse_config(self.__conf_fld, tp)
+		for sensor in sensors:
+			# print(sensor)
+			res += f"\n{sensor['name']}: [{sensor['base']}]\n"
+			for ch in sensor['inputs']:
+				dt = sensor['inputs'][ch]
+				# print(dt)
+				reg = int(dt['addr'])-1
+				rx = self.get_bytes_and_parse(reg, dt['ln'], addr, dt['storage'])
+				rx_i = 0
+				for i in rx:
+					rx_i <<= 8
+					rx_i += i
+				filler = "                                         "
+				row = f" {dt['title']}: {rx_i}."
+				row += filler[len(row):]
+				res += f"{row} ({reg}, {dt['ln']}){rx}\n"
+		return res

@@ -39,7 +39,6 @@ for a in argv:
 		elif key == "rs":
 			com_rs485 = value
 
-
 print("Tester PAS")
 print(f"Version {version}")
 
@@ -48,7 +47,10 @@ files = os.listdir(PATH_DATA)
 for f in files:
 	os.remove(f"{PATH_DATA}{f}")
 
+
+
 p = device(f"COM{com_rs485}")
+
 
 
 
@@ -123,6 +125,7 @@ devices = p.get_devices()
 
 print(f"Finded {len(devices)} devices.")
 
+# Titles
 for d in devices:
 	print(f"\nFor {d} ({p.get_device_address(d)}):")
 	s_number = p.get_serial_number(p.get_device_address(d))
