@@ -518,3 +518,37 @@ class device():
 				row += filler[len(row):]
 				res += f"{row} ({reg}, {dt['ln']}){rx}\n"
 		return res
+
+
+	def get_data(self, addr=''):
+		if addr in self.__addresses:
+			number = self.__addresses[addr]
+			if number in self.__devices:
+				sensors = []
+				res = {}
+				res['addr'] = addr
+				if not 'sensors' in self.__devices[number]:
+					tp = self.get_type(addr)
+					res['type'] = tp
+					sensors = self.parse_config(self.__conf_fld, tp)
+					self.__devices[number]['sensors'] = sensors
+				else:
+					sensors = self.__devices[number]['sensors']
+				dt = []
+				for sensor in sensors:
+					ss = {}
+					ss['name'] = sensor['name']
+					ss['base'] = sensor['base']
+					for ch in sensor['inputs']:
+						dt = sensor['inputs'][ch]
+						# print(dt)
+						reg = int(dt['addr'])-1
+						rx = self.get_bytes_and_parse(reg, dt['ln'], addr, dt['storage'])
+						rx_i = 0
+						for i in rx:
+							rx_i <<= 8
+							rx_i += i
+						ss[dt['title']] = rx_i
+					res['data'] = ss
+				return res
+		return {}

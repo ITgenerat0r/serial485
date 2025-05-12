@@ -67,41 +67,7 @@ p.set_response_delay(0.1)
 calibr = {}
 pas_types = [161]
 
-def parse_config(data):
-	res = {}
-	data = data[1:-1]
-	element = ""
-	overp = 0
-	for i in data:
-		if i == ' ':
-			continue
-		elif i == ',':
-			if overp:
-				# parse element
-				key = ''
-				value = ''
-				ind = element.find(':')
-				# print(f"<{element}> ({ind})")
-				if ind >= 0:
-					key = element[:ind]
-					value = element[ind+2:-1]
-					# parse value
-					indv = value.find(',')
-					if indv >= 0:
-						minv = int(value[:indv])
-						maxv = int(value[indv+1:])
-						res[int(key)] = (minv, maxv)
-						# print(f"#[{key}]({minv}, {maxv})")
-					# end parse value
-				# end parse element
-				element = ""
-				overp = 0
-			else:
-				overp += 1
-				element += i
-		else:
-			element += i
-	return res
+
 
 
 f = open(filename, 'r')
