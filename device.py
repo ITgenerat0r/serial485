@@ -497,7 +497,7 @@ class device():
 					# print(red_text(s))
 		return data
 
-	def get_data(self, addr=''):
+	def get_data_str(self, addr=''):
 		tp = self.get_type(addr)
 		res = f"type: {addr}"
 		sensors = self.parse_config(self.__conf_fld, tp)

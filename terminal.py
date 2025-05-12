@@ -116,7 +116,7 @@ while True:
 		addr = cmd.get_int(1, request="Address: ")
 		p.search_all()
 		print("Result:")
-		print(p.get_data(addr))
+		print(p.get_data_str(addr))
 
 	elif cmd.get(0) == "mc":
 		data = cmd.get(1, request="codes:")
