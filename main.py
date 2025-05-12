@@ -1,12 +1,13 @@
-from device import *
-from mc import *
 from time import sleep
 import os
-from includes import *
 from sys import argv
 import sys
 
 
+from includes import *
+from device import *
+from mc import *
+from cfg_manager import *
 
 version = '1.0'
 
@@ -42,7 +43,15 @@ p.enable_log(False)
 p.set_response_delay(0.1)
 
 
-m = mc()
+m = mc(f"COM{com_arduino}")
+
+
+# get mc type(programm)
+mc_type = m.send(b'type')
+
+# read config by mc type
+
+p.search_all()
 
 
 
