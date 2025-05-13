@@ -86,3 +86,50 @@ def parse_config(data):
 		else:
 			element += i
 	return res
+
+
+
+# where first row is titles, others data
+def show_list_table(data):
+    if len(data):
+        print()
+        titles = []
+        titles_len = {}
+        titles_rows = {}
+        header = ""
+        for title in data[0]:
+            titles.append(title)
+            titles_len[title] = len(title)
+            titles_rows[title] = []
+        for row in data:
+            for title in titles:
+                if len(str(row[title])) > titles_len[title]:
+                    titles_len[title] = len(str(row[title]))
+        filler = "                                                                       "
+        border_filler = "-------------------------------------------------------------------------"
+        text, border, head = ""
+        for title in titles:
+            border += "+-"
+            head += "| "
+            head += (title + filler)[:titles_len[title]]
+            border += border_filler[:titles_len[title]]
+        border += "-+\n"
+        head += " |\n"
+        text = border + head + border
+        for row in data:
+            txt_row = ""
+            for title in titles:
+                txt_row += "| "
+                txt_row += (str(row[title]) + filler)[:titles_len[title]]
+            txt_row += " |\n"
+            text += txt_row
+            text += border
+        return text
+    return ''
+
+
+
+def show_map_table(data):
+	if len(data):
+		pass
+	return ''

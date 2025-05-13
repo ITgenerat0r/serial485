@@ -57,12 +57,14 @@ p.search_all()
 p.print_devices()
 devs = p.get_addresses()
 
-m.send(4);
+m.send(4*3);
 for i in range(10):
 	print()
 	for d in devs:
 		dt = p.get_data(d)
-		print(dt)
+		print(f"Addr: {dt['addr']},   Number: {dt['number']}")
+		print(dt['data'])
+		show_map_table(dt['data'])
 
 
 
