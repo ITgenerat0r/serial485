@@ -38,11 +38,17 @@ class mc(object):
 			print(f"Can't connect to '{port}'!")
 			return False
 
-	def send(self, tx, dl=0.1):
+	def send(self, tx, dl=0.1, until_response=False, max_dl_count=10000):
 		# tx - int()
 		if self.__ser:
 			self.__ser.write(bytes(str(tx), 'utf-8'))
 			sleep(dl)
 			rx = self.__ser.read_all()
+			while until_response:
+				if rx != b'' or max_dl_count < 1:
+					break
+				max_dl_count -= 1
+				sleep(dl)
+				rx = self.__ser.read_all()
 			return rx
 		return ""

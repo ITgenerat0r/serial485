@@ -8,6 +8,7 @@ from includes import *
 from device import *
 from mc import *
 from cfg_manager import *
+from validator import *
 
 version = '1.0'
 
@@ -45,6 +46,8 @@ p.set_response_delay(0.1)
 
 m = mc(f"COM{com_arduino}")
 
+validator = Validator()
+
 
 # get mc type(programm)
 mc_type = m.send(-1)
@@ -57,14 +60,33 @@ p.search_all()
 p.print_devices()
 devs = p.get_addresses()
 
-m.send(4*3);
-for i in range(10):
+for d in devs:
+	dt = p.get_data(d)
+	dt = validator.validate(dt)
+	print(f"Addr: {dt['addr']},   Number: {dt['number']}")
+	print(dt['data'])
+		# status = dt['frequency']
+
+
+
+for i in range(3):
 	print()
-	for d in devs:
-		dt = p.get_data(d)
-		print(f"Addr: {dt['addr']},   Number: {dt['number']}")
-		print(dt['data'])
-		show_map_table(dt['data'])
+	print(m.send(0, until_response=True)) # change direction
+	rx = m.send(4*5) # spin 5 loop
+	is_done = 1
+	while is_done > 0:
+		is_first = True
+		for d in devs:
+			dt = validator.validate(p.get_data(d))
+			print(f"Addr: {dt['addr']},   Number: {dt['number']}")
+			print(dt['data'])
+			if is_first:
+				is_done = dt['frequency']
+				is_first = False
+			else:
+				if dt['frequency'] > is_done:
+					is_done = dt['frequency']
+
 
 
 
