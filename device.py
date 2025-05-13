@@ -104,7 +104,7 @@ class device():
 		if self.__ser:
 			tx = self.crc16(req)
 
-			self.__log = True # debug
+			# self.__log = True # debug
 			self.__print("send: ")
 			self.print_bytes(tx)
 			self.__ser.write(tx)
@@ -112,7 +112,7 @@ class device():
 			rx = self.__ser.read_all()
 			self.__print("received: ")
 			self.print_bytes(rx)
-			self.__log = False # debug
+			# self.__log = False # debug
 			return rx
 		return ""
 
@@ -344,6 +344,10 @@ class device():
 		return self.get_device_field(number)
 
 
+	def get_addresses(self):
+		return self.__addresses
+
+
 	def search_all(self):
 		self.__addr = b'\x66'
 		running = True
@@ -523,10 +527,11 @@ class device():
 	def get_data(self, addr=''):
 		if addr in self.__addresses:
 			number = self.__addresses[addr]
+			res = {}
+			res['addr'] = addr
+			res['number'] = number
 			if number in self.__devices:
 				sensors = []
-				res = {}
-				res['addr'] = addr
 				if not 'sensors' in self.__devices[number]:
 					tp = self.get_type(addr)
 					res['type'] = tp
@@ -550,5 +555,5 @@ class device():
 							rx_i += i
 						ss[dt['title']] = rx_i
 					res['data'] = ss
-				return res
+			return res
 		return {}

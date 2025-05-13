@@ -12,12 +12,12 @@ from cfg_manager import *
 version = '1.0'
 
 
-com_rs485 = 8
-com_arduino = 10
+com_rs485 = 6
+com_arduino = 5
 
 help_text = f" Version {version}\n"
-help_text += f"  rs=*, where * is number for COM port for RS485 device (default = 8)\n"
-help_text += f"  mc=*, where * is number for COM port for controller (default = 10)\n"
+help_text += f"  rs=*, where * is number for COM port for RS485 device (default = 6)\n"
+help_text += f"  mc=*, where * is number for COM port for controller (default = 5)\n"
 
 for a in argv:
 	if a == "-help":
@@ -33,7 +33,7 @@ for a in argv:
 		elif key == "rs":
 			com_rs485 = value
 
-print("Tester")
+print("GFM Universe Tester")
 print(f"Version {version}")
 
 p = device(f"COM{com_rs485}")
@@ -47,12 +47,22 @@ m = mc(f"COM{com_arduino}")
 
 
 # get mc type(programm)
-mc_type = m.send(b'type')
+mc_type = m.send(-1)
+print("type:", mc_type)
+
 
 # read config by mc type
 
 p.search_all()
+p.print_devices()
+devs = p.get_addresses()
 
+m.send(4);
+for i in range(10):
+	print()
+	for d in devs:
+		dt = p.get_data(d)
+		print(dt)
 
 
 
