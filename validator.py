@@ -6,7 +6,7 @@ class Validator():
 	def __init__(self):
 		self.__types = [
 			{
-				'name':['GTI DOL100'],
+				'name':['GTI DOL100', 'GTI DOPM-01', 'GTI DOPM'],
 				'status':['Статус'], 
 				'counter':['Счетчик'], 
 				'frequency':['Частота']

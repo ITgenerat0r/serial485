@@ -91,45 +91,83 @@ def parse_config(data):
 
 # where first row is titles, others data
 def show_list_table(data):
-    if len(data):
-        print()
-        titles = []
-        titles_len = {}
-        titles_rows = {}
-        header = ""
-        for title in data[0]:
-            titles.append(title)
-            titles_len[title] = len(title)
-            titles_rows[title] = []
-        for row in data:
-            for title in titles:
-                if len(str(row[title])) > titles_len[title]:
-                    titles_len[title] = len(str(row[title]))
-        filler = "                                                                       "
-        border_filler = "-------------------------------------------------------------------------"
-        text, border, head = ""
-        for title in titles:
-            border += "+-"
-            head += "| "
-            head += (title + filler)[:titles_len[title]]
-            border += border_filler[:titles_len[title]]
-        border += "-+\n"
-        head += " |\n"
-        text = border + head + border
-        for row in data:
-            txt_row = ""
-            for title in titles:
-                txt_row += "| "
-                txt_row += (str(row[title]) + filler)[:titles_len[title]]
-            txt_row += " |\n"
-            text += txt_row
-            text += border
-        return text
-    return ''
+	if len(data):
+		print()
+		titles = []
+		titles_len = {}
+		# titles_rows = {}
+		header = ""
+		for title in data[0]:
+			titles.append(title)
+			titles_len[title] = len(title)
+			# titles_rows[title] = []
+		for row in data:
+			for title in titles:
+				if len(str(row[title])) > titles_len[title]:
+					titles_len[title] = len(str(row[title]))
+		filler = " "*100
+		border_filler = "-"*100
+		text, border, head = "", "", ""
+		for title in titles:
+			border += "+-"
+			head += "| "
+			head += (title + filler)[:titles_len[title]]
+			border += border_filler[:titles_len[title]]
+		border += "-+\n"
+		head += " |\n"
+		text = border + head + border
+		for row in data:
+			txt_row = ""
+			for title in titles:
+				txt_row += "| "
+				txt_row += (str(row[title]) + filler)[:titles_len[title]]
+			txt_row += " |\n"
+			text += txt_row
+			text += border
+		return text
+	return ''
 
 
-
+# list of maps
 def show_map_table(data):
 	if len(data):
-		pass
+		titles = []
+		titles_len = {}
+		header = ""
+		# for row in data[0]:
+		# 	titles.append(title)
+		#	 titles_len[title] = len(title)
+		for row in data:
+			for title in row:
+				if not title in titles:
+					titles.append(title)
+					titles_len[title] = len(title)+1
+				if len(str(row[title]))+1 > titles_len[title]:
+					titles_len[title] = len(str(row[title]))+1
+		print(titles)
+		print(titles_len)
+		filler = " "*100
+		border_filler = "-"*100
+		text, border, head = "", "", ""
+		for title in titles:
+			border += "+-"
+			head += "| "
+			head += (str(title) + filler)[:titles_len[title]]
+			border += border_filler[:titles_len[title]]
+		border += "-+\n"
+		head += " |\n"
+		bold_border = border.replace('-', '=')
+		text = bold_border + head + bold_border
+		for row in data:
+			txt_row = ""
+			for title in titles:
+				txt_row += "| "
+				if title in row:
+					txt_row += (str(row[title]) + filler)[:titles_len[title]]
+				else:
+					txt_row += filler[:titles_len[title]]
+			txt_row += " |\n"
+			text += txt_row
+			text += border
+		return text
 	return ''

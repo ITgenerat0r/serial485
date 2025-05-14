@@ -63,9 +63,13 @@ devs = p.get_addresses()
 for d in devs:
 	dt = p.get_data(d)
 	dt = validator.validate(dt)
-	print(f"Addr: {dt['addr']},   Number: {dt['number']}")
+	print(f"Addr: {dt['addr']},   Number:", yellow_text(dt['number']))
 	print(dt['data'])
-		# status = dt['frequency']
+	status = dt['status']
+	if status == 0:
+		print("Status:", green_text(status))
+	else:
+		print("Status:", red_text(status))
 
 
 
