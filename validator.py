@@ -18,7 +18,7 @@ class Validator():
 			}
 		]
 
-	def validate(self, data):
+	def __validate_item(self, data):
 		if 'data' in data:
 			name = data['data']['name']
 			data_type = {}
@@ -33,6 +33,14 @@ class Validator():
 				for f in data_type[field]:
 					if f in data['data']:
 						data[field] = data['data'][f]
+		del data['data']
+
+	def validate(self, data):
+		if str(type(data)) == "<class 'dict'>":
+			return self.__validate_item(data)
+		elif str(type(data)) == "<class 'list'>":
+			for item in data:
+				item = self.__validate_item(item)
 		return data
 		
 		

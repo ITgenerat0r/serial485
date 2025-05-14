@@ -26,4 +26,5 @@ res = show_map_table(data)
 print(res)
 
 
-
+print(str(type(row1)))
+print(type(data))

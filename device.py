@@ -557,3 +557,9 @@ class device():
 					res['data'] = ss
 			return res
 		return {}
+
+	def get_all_data(self):
+		res = []
+		for addr in self.__addresses:
+			res.append(self.get_data(addr))
+		return res

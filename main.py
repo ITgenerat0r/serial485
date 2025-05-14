@@ -58,13 +58,13 @@ print("type:", mc_type)
 
 p.search_all()
 p.print_devices()
-devs = p.get_addresses()
 
-for d in devs:
-	dt = p.get_data(d)
-	dt = validator.validate(dt)
+
+data = validator.validate(p.get_all_data())
+print(show_map_table(data))
+for dt in data:
 	print(f"Addr: {dt['addr']},   Number:", yellow_text(dt['number']))
-	print(dt['data'])
+	# print(dt['data'])
 	status = dt['status']
 	if status == 0:
 		print("Status:", green_text(status))
@@ -80,10 +80,11 @@ for i in range(3):
 	is_done = 1
 	while is_done > 0:
 		is_first = True
-		for d in devs:
-			dt = validator.validate(p.get_data(d))
-			print(f"Addr: {dt['addr']},   Number: {dt['number']}")
-			print(dt['data'])
+		data = validator.validate(p.get_all_data())
+		print(show_map_table(data))
+		for dt in data:
+			# print(f"Addr: {dt['addr']},   Number: {dt['number']}")
+			# print(dt['data'])
 			if is_first:
 				is_done = dt['frequency']
 				is_first = False

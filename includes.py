@@ -134,9 +134,6 @@ def show_map_table(data):
 		titles = []
 		titles_len = {}
 		header = ""
-		# for row in data[0]:
-		# 	titles.append(title)
-		#	 titles_len[title] = len(title)
 		for row in data:
 			for title in row:
 				if not title in titles:
@@ -144,8 +141,6 @@ def show_map_table(data):
 					titles_len[title] = len(title)+1
 				if len(str(row[title]))+1 > titles_len[title]:
 					titles_len[title] = len(str(row[title]))+1
-		print(titles)
-		print(titles_len)
 		filler = " "*100
 		border_filler = "-"*100
 		text, border, head = "", "", ""
