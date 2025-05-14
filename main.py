@@ -73,10 +73,17 @@ for dt in data:
 
 
 
-for i in range(3):
+
+spins = [100, 10, 10]
+
+for i in spins:
 	print()
-	print(m.send(0, until_response=True)) # change direction
-	rx = m.send(4*5) # spin 5 loop
+	rx = m.get()
+	print(rx)
+	rx = m.send(0, until_response=True) # change direction
+	if rx == b'1':
+		print(m.send(0, until_response=True))
+	rx = m.send(4*i)
 	is_done = 1
 	while is_done > 0:
 		is_first = True

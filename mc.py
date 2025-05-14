@@ -52,3 +52,15 @@ class mc(object):
 				rx = self.__ser.read_all()
 			return rx
 		return ""
+
+	def get(self, until_response=False, dl=0.3, max_dl_count=1000):
+		if self.__ser:
+			rx = self.__ser.read_all()
+			while until_response:
+				if rx != b'' or max_dl_count < 1:
+					break
+				max_dl_count -= 1
+				sleep(dl)
+				rx = self.__ser.read_all()
+			return rx
+		return ""

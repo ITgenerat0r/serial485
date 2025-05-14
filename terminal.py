@@ -117,11 +117,22 @@ while True:
 		p.search_all()
 		print("Result:")
 		print(p.get_data_str(addr))
+	elif cmd.get(0) == "alldata":
+		p.search_all()
+		dt = p.get_all_data()
+		for row in dt:
+			if 'data' in row:
+				for item in row['data']:
+					row[item] = row['data'][item]
+				del row['data']
+		print(show_map_table(dt))
 
 	elif cmd.get(0) == "mc":
 		data = cmd.get(1, request="codes:")
 		idata = hex_from_str(data)
-		m.send(idata, 1)
+		print(m.send(idata, 1))
+	elif cmd.get(0) == "mcget":
+		print(m.get())
 
 	else:
 		print("Unknown command!")
