@@ -55,8 +55,12 @@ print("type:", mc_type)
 
 
 # read config by mc type
-
-p.search_all()
+last_x = 0
+for i in range(10):
+	x = p.search_all()
+	if x == last_x:
+		break
+	last_x = x
 p.print_devices()
 
 
@@ -74,15 +78,14 @@ for dt in data:
 
 
 
-spins = [100, 10, 10]
+spins = [100, 100]
+
+rx = m.send(0, until_response=True) # change direction
+if rx == b'1':
+	print(m.send(0, until_response=True))
+
 
 for i in spins:
-	print()
-	rx = m.get()
-	print(rx)
-	rx = m.send(0, until_response=True) # change direction
-	if rx == b'1':
-		print(m.send(0, until_response=True))
 	rx = m.send(4*i)
 	is_done = 1
 	while is_done > 0:
@@ -98,6 +101,10 @@ for i in spins:
 			else:
 				if dt['frequency'] > is_done:
 					is_done = dt['frequency']
+	rx = m.get()
+	print(rx)
+	rx = m.send(0, until_response=True) # change direction
+	print("Direction:", rx)
 
 
 

@@ -6,13 +6,13 @@ class Validator():
 	def __init__(self):
 		self.__types = [
 			{
-				'name':['GTI DOL100', 'GTI DOPM-01', 'GTI DOPM'],
+				'name':['GTI DOL100', 'GTI DOPM-01', 'GTI DOPM', 'name'],
 				'status':['Статус'], 
 				'counter':['Счетчик'], 
 				'frequency':['Частота']
 			},
 			{
-				'name':['GTI PAS'],
+				'name':['GTI PAS', 'name'],
 				'status':['Статус'],
 				'codes':['codes']
 			}

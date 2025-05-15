@@ -28,3 +28,11 @@ print(res)
 
 print(str(type(row1)))
 print(type(data))
+
+
+
+
+
+
+# на макс скорости замер частоты
+# 1/4 to right to left 1/2 100 loops

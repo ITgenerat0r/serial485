@@ -1,8 +1,11 @@
 import serial
 from time import sleep
-from includes import *
 import serial.tools.list_ports
 import os
+import struct
+
+from includes import *
+
 
 class device():
 	def __init__(self, port='COM8'):
@@ -405,6 +408,7 @@ class device():
 				break
 			else:
 				overcount -= 1
+		return len(self.__addresses)
 
 
 
@@ -439,7 +443,8 @@ class device():
 		res['title'] = self.parse_field(data, 'title', True)
 		res['storage'] = self.parse_field(data, 'storage', True)
 		res['addr'] = self.parse_field(data, 'addr', True)
-		res['ln'] = self._parse_type(self.parse_field(data, 'type', True))
+		res['type'] = self.parse_field(data, 'type', True)
+		res['ln'] = self._parse_type(res['type'])
 		return (id, res)
 
 	def cut_register(self, data):
@@ -553,7 +558,19 @@ class device():
 						for i in rx:
 							rx_i <<= 8
 							rx_i += i
-						ss[dt['title']] = rx_i
+						if rx_i:
+							if dt['type'] == 'float':
+								hex_rx = hex(rx_i)[2:]
+								ss[dt['title']], = struct.unpack('f', bytes.fromhex(hex_rx))
+							elif dt['type'][0] == 'i':
+								hex_rx = hex(rx_i)[2:]
+								hex_rx = "00000000"[:-len(hex_rx)] + hex_rx
+								ss[dt['title']], = struct.unpack('i', bytes.fromhex(hex_rx))
+							else:
+								ss[dt['title']] = rx_i
+						else:
+							ss[dt['title']] = rx_i
+
 					res['data'] = ss
 			return res
 		return {}
