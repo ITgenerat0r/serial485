@@ -16,9 +16,12 @@ version = '1.0'
 com_rs485 = 6
 com_arduino = 5
 
+ref_sensor = 0
+
 help_text = f" Version {version}\n"
 help_text += f"  rs=*, where * is number for COM port for RS485 device (default = 6)\n"
 help_text += f"  mc=*, where * is number for COM port for controller (default = 5)\n"
+help_text += f"  st=*, where * is number of good device"
 
 for a in argv:
 	if a == "-help":
@@ -33,6 +36,8 @@ for a in argv:
 			com_arduino = value
 		elif key == "rs":
 			com_rs485 = value
+		elif key == "st":
+			ref_sensor = value
 
 print("GFM Universe Tester")
 print(f"Version {version}")
@@ -61,8 +66,11 @@ for i in range(10):
 	if x == last_x:
 		break
 	last_x = x
+	sleep(0.1)
 p.print_devices()
 
+if last_x == 0:
+	sys.exit(0)
 
 data = validator.validate(p.get_all_data())
 print(show_map_table(data))
@@ -88,7 +96,7 @@ if rx == b'1':
 for i in spins:
 	rx = m.send(4*i)
 	is_done = 1
-	while is_done > 0:
+	while is_done != 0:
 		is_first = True
 		data = validator.validate(p.get_all_data())
 		print(show_map_table(data))

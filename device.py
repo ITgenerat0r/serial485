@@ -3,6 +3,7 @@ from time import sleep
 import serial.tools.list_ports
 import os
 import struct
+import ctypes
 
 from includes import *
 
@@ -506,6 +507,47 @@ class device():
 					# print(red_text(s))
 		return data
 
+	def parse_value(self, value, value_type="int32"):
+		rx_i = 0
+		for i in value:
+			rx_i <<= 8
+			rx_i += i
+		print(blue_text(value), hex(rx_i))
+		print(yellow_text(bin(rx_i)))
+		print(yellow_text(hex(rx_i&0x7fffff)), "      ", yellow_text(rx_i&0x7fffff))
+		if rx_i:
+			if value_type == 'float':
+				m = rx_i&0x7fffff
+				e = (rx_i&0x7f800000)>>23
+				s = (rx_i&0x80000000)>>31
+				print(f"M: {m} ({hex(m)})")
+				print(f"E: {e} ({hex(e)})")
+				print(f"S: {s} ({hex(s)})")
+				x = 1.0*m
+				# x = pow(x, -rx_i&0xff)
+				if s:
+					x *= -1
+				x *= pow(2, e)
+				# rx_i << 32
+				# x = ctypes.c_float(rx_i)
+				# hex_rx = hex(rx_i)[2:]
+				# x, = struct.unpack('f', bytes.fromhex(hex_rx))
+				# print(yellow_text(f"From {rx_i}({hex_rx}) get {x}"))
+				return x
+			elif value_type == 'int32':
+				x = ctypes.c_int32(rx_i)
+				return x.value
+			elif value_type == 'uint32':
+				x = ctypes.c_uint32(rx_i)
+				return x.value
+			elif value_type == 'int16':
+				x = ctypes.c_int16(rx_i)
+				return x.value
+			elif value_type == 'uint16':
+				x = ctypes.c_uint16(rx_i)
+				return x.value
+		return rx_i
+
 	def get_data_str(self, addr=''):
 		tp = self.get_type(addr)
 		res = f"type: {addr}"
@@ -554,23 +596,7 @@ class device():
 						# print(dt)
 						reg = int(dt['addr'])-1
 						rx = self.get_bytes_and_parse(reg, dt['ln'], addr, dt['storage'])
-						rx_i = 0
-						for i in rx:
-							rx_i <<= 8
-							rx_i += i
-						if rx_i:
-							if dt['type'] == 'float':
-								hex_rx = hex(rx_i)[2:]
-								ss[dt['title']], = struct.unpack('f', bytes.fromhex(hex_rx))
-							elif dt['type'][0] == 'i':
-								hex_rx = hex(rx_i)[2:]
-								hex_rx = "00000000"[:-len(hex_rx)] + hex_rx
-								ss[dt['title']], = struct.unpack('i', bytes.fromhex(hex_rx))
-							else:
-								ss[dt['title']] = rx_i
-						else:
-							ss[dt['title']] = rx_i
-
+						ss[dt['title']] = self.parse_value(rx, dt['type'])
 					res['data'] = ss
 			return res
 		return {}
