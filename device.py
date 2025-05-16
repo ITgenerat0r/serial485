@@ -509,26 +509,30 @@ class device():
 
 	def parse_value(self, value, value_type="int32"):
 		rx_i = 0
-		for i in value:
-			rx_i <<= 8
-			rx_i += i
-		if rx_i:
-			if value_type == 'float':
-				hex_rx = hex(rx_i)[2:]
-				x, = struct.unpack('>f', bytes.fromhex(hex_rx))
-				return x
-			elif value_type == 'int32':
-				x = ctypes.c_int32(rx_i)
-				return x.value
-			elif value_type == 'uint32':
-				x = ctypes.c_uint32(rx_i)
-				return x.value
-			elif value_type == 'int16':
-				x = ctypes.c_int16(rx_i)
-				return x.value
-			elif value_type == 'uint16':
-				x = ctypes.c_uint16(rx_i)
-				return x.value
+		try:
+			for i in value:
+				rx_i <<= 8
+				rx_i += i
+			if rx_i:
+				if value_type == 'float':
+					hex_rx = hex(rx_i)[2:10]
+					x, = struct.unpack('>f', bytes.fromhex(hex_rx))
+					return x
+				elif value_type == 'int32':
+					x = ctypes.c_int32(rx_i)
+					return x.value
+				elif value_type == 'uint32':
+					x = ctypes.c_uint32(rx_i)
+					return x.value
+				elif value_type == 'int16':
+					x = ctypes.c_int16(rx_i)
+					return x.value
+				elif value_type == 'uint16':
+					x = ctypes.c_uint16(rx_i)
+					return x.value
+		except Exception as e:
+			print(f"Error: {e}")
+			return -1
 		return rx_i
 
 	def get_data_str(self, addr=''):

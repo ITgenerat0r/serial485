@@ -43,4 +43,50 @@ class Validator():
 				item = self.__validate_item(item)
 		return data
 		
+
+
+
+
+
+	def is_equal(self, v1, v2, d):
+		if v1 < v2-d:
+			return False
+		elif v1 > v2+d:
+			return False
+		return True
+
+
+	def check_dol_counter(self, spins, tp, counter):
+		res = ""
+		if tp == "GTI DOL100":
+			f = spins * 20
+			d = 1
+		elif tp == "GTI DOPM-01":
+			f = spins * 40
+			d = 1
+		elif tp == "GTI DOPM":
+			f = spins * 100
+			d = 1
+		if not self.is_equal(counter, f, d):
+			res = f"Counter error. Counted {counter}, should be {f}."
+		return res
+
+	def check_dol_frequency(self, tp, frequency):
+		res = ""
+		if tp == "GTI DOL100":
+			f = 13.6
+			d = 0.5
+		elif tp == "GTI DOPM-01":
+			f = 138
+			d = 1
+		elif tp == "GTI DOPM":
+			f = 40
+			d = 1
+		if not self.is_equal(frequency, f, d):
+			res = f"Frequency wrong {frequency}, instead {f}.\n"
+		return res
+
+
+	def check_dol(self, steps, tp, counter, frequency):
+		return self.check_dol_counter(steps, tp, counter)+self.check_dol_frequency(tp, frequency)
 		

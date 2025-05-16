@@ -56,22 +56,23 @@ mc_type = m.send(-1)
 print("type:", mc_type)
 
 
-# read config by mc type
+print("Searching devices...")
 last_x = 0
 for i in range(10):
+	print('.', end='')
 	x = p.search_all()
-	if x == last_x:
-		break
+	# if x == last_x:
+	# 	break
 	last_x = x
-	sleep(0.5)
+	sleep(0.2)
 p.print_devices()
 
 if last_x == 0:
 	sys.exit(0)
 
-init_data = validator.validate(p.get_all_data())
-print(show_map_table(init_data))
-for dt in init_data:
+data = validator.validate(p.get_all_data())
+print(show_map_table(data))
+for dt in data:
 	print(f"Addr: {dt['addr']},   Number:", yellow_text(dt['number']))
 	# print(dt['data'])
 	status = dt['status']
@@ -89,20 +90,35 @@ if rx == b'1':
 	print(m.send(0, until_response=True))
 
 
+init_data = {}
+collected_data = {}
+for dt in data:
+	addr = dt['addr']
+	init_data[addr] = dt
+	collected_data[addr] = {}
+	collected_data[addr]['err'] = []
 
 #long
-collected_data = {}
 for i in range(2):
-	rx = m.send(4*1000)
+	spins = 1000
+	rx = m.send(4*spins)
 	is_done = 1
 	while is_done != 0:
 		is_first = True
 		data = validator.validate(p.get_all_data())
 		print(show_map_table(data))
 		for dt in data:
-			# print(f"Addr: {dt['addr']},   Number: {dt['number']}")
-			# print(dt['data'])
+			addr = dt['addr']
 			# check frequency
+			if 'frequency' in collected_data[addr]:
+				if dt['frequency'] > collected_data[addr]['frequency']:
+					collected_data[addr]['frequency'] = dt['frequency']
+			else:
+				collected_data[addr]['frequency'] = dt['frequency']
+			# check status
+			if dt['status'] != 0:
+				print(red_text(f"Status {dt['status']}"))
+				collected_data[addr]['err'].append(dt)
 			if is_first:
 				is_done = dt['frequency']
 				is_first = False
@@ -114,20 +130,39 @@ for i in range(2):
 	# check counter
 	data = validator.validate(p.get_all_data())
 	print(show_map_table(data))
+	for dt in data:
+		if dt['addr'] in init_data and dt['addr'] in collected_data:
+			err = validator.check_dol(spins, dt['name'], dt['counter']-init_data[dt['addr']]['counter'], collected_data[dt['addr']]['frequency'])
+			if err:
+				collected_data[dt['addr']]['err'].append(err)
 	rx = m.send(0, until_response=True) # change direction
 	print("Direction:", rx)
+	init_data = data
 
 
 #short
-for i in range(10):
+for i in range(12):
 	rx = m.send(2, until_response=True)
 	rx = m.send(0, until_response=True)
+	sleep(0.1)
 	rx = m.send(1, until_response=True)
 	rx = m.send(0, until_response=True)
-#check counter
+	sleep(0.1)
+#check counter & status
 data = validator.validate(p.get_all_data())
 print(show_map_table(data))
 
+for dt in data:
+	if dt['status'] != 0:
+		collected_data[addr]['err'].append(dt)
+	err = validator.check_dol_counter(400, dt['name'], dt['counter'])
+	if err:
+		collected_data[dt['addr']]['err'].append(err)
 
-
-
+print()
+print(collected_data)
+print()
+for i in collected_data:
+	if collected_data[i]['err']:
+		for e in collected_data[i]['err']:
+			print(f"Error: {e}")
