@@ -512,27 +512,10 @@ class device():
 		for i in value:
 			rx_i <<= 8
 			rx_i += i
-		print(blue_text(value), hex(rx_i))
-		print(yellow_text(bin(rx_i)))
-		print(yellow_text(hex(rx_i&0x7fffff)), "      ", yellow_text(rx_i&0x7fffff))
 		if rx_i:
 			if value_type == 'float':
-				m = rx_i&0x7fffff
-				e = (rx_i&0x7f800000)>>23
-				s = (rx_i&0x80000000)>>31
-				print(f"M: {m} ({hex(m)})")
-				print(f"E: {e} ({hex(e)})")
-				print(f"S: {s} ({hex(s)})")
-				x = 1.0*m
-				# x = pow(x, -rx_i&0xff)
-				if s:
-					x *= -1
-				x *= pow(2, e)
-				# rx_i << 32
-				# x = ctypes.c_float(rx_i)
-				# hex_rx = hex(rx_i)[2:]
-				# x, = struct.unpack('f', bytes.fromhex(hex_rx))
-				# print(yellow_text(f"From {rx_i}({hex_rx}) get {x}"))
+				hex_rx = hex(rx_i)[2:]
+				x, = struct.unpack('>f', bytes.fromhex(hex_rx))
 				return x
 			elif value_type == 'int32':
 				x = ctypes.c_int32(rx_i)
