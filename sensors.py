@@ -1,4 +1,12 @@
 
+FIELDS = {
+				'status':['Статус'], 
+				'counter':['Счетчик'], 
+				'frequency':['Частота'],
+				'codes':['codes', 'Коды']
+			}
+
+
 def choose_sensor(tp):
 	match tp:
 		case 42:
@@ -18,12 +26,20 @@ class Channel():
 	# 	self.parse_channel(ch)
 
 	# def parse_channel(self, ch):
+		self.field_name = self.set_field_name(ch['title'])
 		self.reg = int(ch['addr'])-1
 		self.len = int(ch['ln'])
 		self.tp = ch['type']
 		self.storage = ch['storage']
 
 		self.value = None
+		self.last_value = None
+
+	def set_field_name(self, channel_name):
+		for i in FIELDS:
+			if channel_name in FIELDS[i]:
+				self.field_name = i
+				break
 
 	def __str__(self):
 		return f"{self.value:>10}: {self.tp:<6}, ({self.reg:>4}, {self.len:>1})"
@@ -35,7 +51,7 @@ class Sensor():
 		self.__tp = 0
 		self.__name = "Base sensor"
 		self.__base = ""
-		self.__channels = []
+		self.__channels = {}
 		self.__addr = 0
 		self.__serial_number = 0
 
@@ -51,7 +67,7 @@ class Sensor():
 			self.__base = sensor['base']
 			for row in sensor['inputs']:
 				ch = Channel(sensor['inputs'][row])
-				self.__channels.append(ch)
+				self.__channels[ch.field_name] = ch
 			break
 		return self.__channels
 
@@ -63,6 +79,32 @@ class Sensor():
 
 	def set_address(self, addr):
 		self.__addr = addr
+
+	def get_serial_number(self):
+		return self.__serial_number
+
+	def get_address(self):
+		return self.__addr
+
+
+	def save_values(self):
+		for ch in self.__channels:
+			ch.last_value = ch.value
+
+	def is_equal(self, value_1, value_2, precision):
+		if value_1 < value_2 - precision:
+			return False
+		elif value_1 > value_2 + precision:
+			return False
+		return True
+
+	def check_status(self):
+		if self.__channels['status'] != 0:
+			return False
+		return True
+
+	def check_data(self, data):
+		return self.check_status()
 
 	def __str__(self):
 		res = f"{self.__tp}: {self.__name} ({self.__base})\n"
@@ -80,6 +122,30 @@ class Sensor_speed(Sensor):
 	def __init__(self):
 		super().__init__()
 		self.__name = "Speed sensor"
+		self.__distance = 25
+		self.__distance_precision = 1
+
+	def check_data(self, data):
+		res = True
+		if not self.check_status():
+			res = False
+		if not self.check_speed():
+			res = False
+		if not self.check_distance(data):
+			res = False
+		return res
+
+	def check_speed(self, speed):
+		pass
+
+	def check_distance(self, spins):
+		ch = self.__channels['counter']
+		counted = ch.value - ch.last_value
+		dist = spins * self.__distance
+		if not self.is_equal(counted, dist, self.__distance_precision):
+			return False
+		return True
+
 
 		
 
@@ -89,6 +155,8 @@ class Sensor_104(Sensor_speed):
 	def __init__(self):
 		super().__init__()
 		self.__tp = 104
+		self.__distance = 5
+		self.__distance_precision = 1
 		
 
 class Sensor_58(Sensor_speed):
@@ -96,6 +164,8 @@ class Sensor_58(Sensor_speed):
 	def __init__(self):
 		super().__init__()
 		self.__tp = 58
+		self.__distance = 10
+		self.__distance_precision = 1
 		
 
 
@@ -104,6 +174,8 @@ class Sensor_42(Sensor_speed):
 	def __init__(self):
 		super().__init__()
 		self.__tp = 42
+		self.__distance = 25
+		self.__distance_precision = 1
 		
 
 

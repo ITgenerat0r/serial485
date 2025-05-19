@@ -577,12 +577,13 @@ class device():
 					self.__devices[number]['sensor'] = sens
 				sens = self.__devices[number]['sensor']
 				channels = sens.get_channels()
-				for ch in channels:
+				for ch_name in channels:
+					ch = channels[ch_name]
 					rx = self.get_bytes_and_parse(ch.reg, ch.len, addr, ch.storage)
 					ch.value = self.parse_value(rx, ch.tp)
 				return sens
-			# return res
-		return {}
+			return res
+		return None
 
 	def get_all_data(self):
 		res = []
@@ -590,6 +591,14 @@ class device():
 			res.append(self.get_data(addr))
 		return res
 
-	def compare_data(self, value):
+	def save_states(self):
+		for addr in self.__devices:
+			self.get_data(addr)
+			self.__devices[addr]['sensor'].save_values()
+		
+
+	def check_data(self, value):
 		# value - data that sended to controller
-		pass
+		for i in self.__devices:
+			self.__devices[i]['sensor'].check_data(value)
+
