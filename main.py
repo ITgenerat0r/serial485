@@ -65,6 +65,7 @@ for i in range(10):
 	# 	break
 	last_x = x
 	sleep(0.2)
+print()
 p.print_devices()
 
 if last_x == 0:

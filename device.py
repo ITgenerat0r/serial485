@@ -6,6 +6,7 @@ import struct
 import ctypes
 
 from includes import *
+from sensors import *
 
 
 class device():
@@ -565,27 +566,22 @@ class device():
 			res['addr'] = addr
 			res['number'] = number
 			if number in self.__devices:
-				sensors = []
-				if not 'sensors' in self.__devices[number]:
+				# sensors = []
+				if not 'sensor' in self.__devices[number]:
 					tp = self.get_type(addr)
-					res['type'] = tp
 					sensors = self.parse_config(self.__conf_fld, tp)
-					self.__devices[number]['sensors'] = sensors
-				else:
-					sensors = self.__devices[number]['sensors']
-				dt = []
-				for sensor in sensors:
-					ss = {}
-					ss['name'] = sensor['name']
-					ss['base'] = sensor['base']
-					for ch in sensor['inputs']:
-						dt = sensor['inputs'][ch]
-						# print(dt)
-						reg = int(dt['addr'])-1
-						rx = self.get_bytes_and_parse(reg, dt['ln'], addr, dt['storage'])
-						ss[dt['title']] = self.parse_value(rx, dt['type'])
-					res['data'] = ss
-			return res
+					sens = choose_sensor(tp)
+					sens.set_serial_number(number)
+					sens.set_address(addr)
+					sens.parse_channels(sensors)
+					self.__devices[number]['sensor'] = sens
+				sens = self.__devices[number]['sensor']
+				channels = sens.get_channels()
+				for ch in channels:
+					rx = self.get_bytes_and_parse(ch.reg, ch.len, addr, ch.storage)
+					ch.value = self.parse_value(rx, ch.tp)
+				return sens
+			# return res
 		return {}
 
 	def get_all_data(self):
@@ -593,3 +589,7 @@ class device():
 		for addr in self.__addresses:
 			res.append(self.get_data(addr))
 		return res
+
+	def compare_data(self, value):
+		# value - data that sended to controller
+		pass
