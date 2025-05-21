@@ -71,18 +71,16 @@ p.print_devices()
 if last_x == 0:
 	sys.exit(0)
 
-data = validator.validate(p.get_all_data())
-print(show_map_table(data))
+# p.get_all_data()
+data = p.get_all_data()
 for dt in data:
-	print(f"Addr: {dt['addr']},   Number:", yellow_text(dt['number']))
-	# print(dt['data'])
-	status = dt['status']
-	if status == 0:
-		print("Status:", green_text(status))
+	print(dt)
+	# for ch in dt.get_channels():
+	# 	print(ch)
+	if dt.check_status():
+		print("Status:", green_text(dt.get_status()))
 	else:
-		print("Status:", red_text(status))
-
-
+		print("Status:", red_text(dt.get_status()))
 
 
 

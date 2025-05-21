@@ -602,3 +602,9 @@ class device():
 		for i in self.__devices:
 			self.__devices[i]['sensor'].check_data(value)
 
+	def get_devices(self): # debug
+		return self.__devices
+
+	def what(self): #debug
+		print(self.__devices)
+

@@ -20,13 +20,7 @@ def choose_sensor(tp):
 
 class Channel():
 	def __init__(self, ch):
-	# 	self.reg = 1400
-	# 	self.len = 1
-	# 	self.tp = "int16"
-	# 	self.parse_channel(ch)
-
-	# def parse_channel(self, ch):
-		self.field_name = self.set_field_name(ch['title'])
+		self.field_name = self.parse_field_name(ch['title'])
 		self.reg = int(ch['addr'])-1
 		self.len = int(ch['ln'])
 		self.tp = ch['type']
@@ -35,14 +29,13 @@ class Channel():
 		self.value = None
 		self.last_value = None
 
-	def set_field_name(self, channel_name):
+	def parse_field_name(self, channel_name):
 		for i in FIELDS:
 			if channel_name in FIELDS[i]:
-				self.field_name = i
-				break
+				return i
 
 	def __str__(self):
-		return f"{self.value:>10}: {self.tp:<6}, ({self.reg:>4}, {self.len:>1})"
+		return f" -{str(self.field_name):<10}:{str(self.value):>8}, {self.tp:<6}, ({self.reg:>4}, {self.len:>1})"
 
 
 
@@ -67,7 +60,8 @@ class Sensor():
 			self.__base = sensor['base']
 			for row in sensor['inputs']:
 				ch = Channel(sensor['inputs'][row])
-				self.__channels[ch.field_name] = ch
+				if ch.field_name:
+					self.__channels[ch.field_name] = ch
 			break
 		return self.__channels
 
@@ -99,17 +93,25 @@ class Sensor():
 		return True
 
 	def check_status(self):
-		if self.__channels['status'] != 0:
+		if not 'status' in self.__channels:
+			return False
+		if self.__channels['status'].value != 0:
 			return False
 		return True
+
+	def get_status(self):
+		if 'status' in self.__channels:
+			return self.__channels['status'].value
+		return -1
 
 	def check_data(self, data):
 		return self.check_status()
 
 	def __str__(self):
-		res = f"{self.__tp}: {self.__name} ({self.__base})\n"
-		for ch in self.__channels:
-			res += f"{ch}\n"
+		res = f"{self.__serial_number} ({self.__tp}): {self.__name} ({self.__base})\n"
+		if self.__channels:
+			for ch in self.__channels:
+				res += f"{self.__channels[ch]}\n"
 		return res
 
 
