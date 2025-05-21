@@ -589,6 +589,7 @@ class device():
 		res = []
 		for addr in self.__addresses:
 			res.append(self.get_data(addr))
+			sleep(0.5)
 		return res
 
 	def save_states(self):
@@ -599,12 +600,33 @@ class device():
 
 	def check_data(self, value):
 		# value - data that sended to controller
+		print(f"Checks during process...")
+		while True:
+			is_done = True
+			self.get_all_data()
+			for i in self.__devices:
+				if not self.__devices[i]['sensor'].during_check_data(value):
+					is_done = False
+			if is_done:
+				break
+			print()
+		print(f"Finally checks...")
 		for i in self.__devices:
-			self.__devices[i]['sensor'].check_data(value)
+			sensor = self.__devices[i]['sensor']
+			if not sensor.finally_check_data(value):
+				print(f"\nCurrent errors:")
+			errors = sensor.get_errors()
+			if errors:
+				print(sensor.get_title())
+				sensor.clear_errors()
+				for err in errors:
+					print(red_text(err))
+		print(f"Done!")
 
-	def get_devices(self): # debug
-		return self.__devices
 
-	def what(self): #debug
-		print(self.__devices)
+	# def get_devices(self): # debug
+	# 	return self.__devices
+
+	# def what(self): #debug
+	# 	print(self.__devices)
 

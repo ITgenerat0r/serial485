@@ -89,57 +89,39 @@ if rx == b'1':
 	print(m.send(0, until_response=True))
 
 
-init_data = {}
-collected_data = {}
-for dt in data:
-	addr = dt['addr']
-	init_data[addr] = dt
-	collected_data[addr] = {}
-	collected_data[addr]['err'] = []
+# init_data = {}
+# collected_data = {}
+# for dt in data:
+# 	addr = dt['addr']
+# 	init_data[addr] = dt
+# 	collected_data[addr] = {}
+# 	collected_data[addr]['err'] = []
 
 #long
+direction = b'0'
 for i in range(2):
-	spins = 1000
-	# is_done = 1
+	spins = 100
 	p.save_states()
 	rx = m.send(4*spins)
 	p.get_all_data()
-	p.check_data(spins)
-	# while is_done != 0:
-		# is_first = True
-		# data = validator.validate(p.get_all_data())
-		# print(show_map_table(data))
-		# for dt in data:
-		# 	addr = dt['addr']
-		# 	# check frequency
-		# 	if 'frequency' in collected_data[addr]:
-		# 		if dt['frequency'] > collected_data[addr]['frequency']:
-		# 			collected_data[addr]['frequency'] = dt['frequency']
-		# 	else:
-		# 		collected_data[addr]['frequency'] = dt['frequency']
-		# 	# check status
-		# 	if dt['status'] != 0:
-		# 		print(red_text(f"Status {dt['status']}"))
-		# 		collected_data[addr]['err'].append(dt)
-		# 	if is_first:
-		# 		is_done = dt['frequency']
-		# 		is_first = False
-		# 	else:
-		# 		if dt['frequency'] > is_done:
-		# 			is_done = dt['frequency']
+	check_spins = 4 * spins
+	if direction == b'1':
+		check_spins *= -1
+	p.check_data(check_spins)
+
 	rx = m.get()
 	print(rx)
-	# check counter
-	# data = validator.validate(p.get_all_data())
-	# print(show_map_table(data))
-	# for dt in data:
-	# 	if dt['addr'] in init_data and dt['addr'] in collected_data:
-	# 		err = validator.check_dol(spins, dt['name'], dt['counter']-init_data[dt['addr']]['counter'], collected_data[dt['addr']]['frequency'])
-	# 		if err:
-	# 			collected_data[dt['addr']]['err'].append(err)
+
 	rx = m.send(0, until_response=True) # change direction
 	print("Direction:", rx)
-	init_data = data
+	direction = rx
+	# init_data = data
+
+
+sys.exit(0)
+
+
+
 
 
 #short
