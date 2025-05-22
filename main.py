@@ -103,7 +103,7 @@ if rx == b'1':
 #long
 direction = b'0'
 for i in range(2):
-	spins = 1000
+	spins = 250
 	p.save_states()
 	rx = m.send(4*spins)
 	p.get_all_data()
@@ -121,7 +121,7 @@ for i in range(2):
 	# init_data = data
 
 # input('Press enter to continue...')
-search_devices()
+p.search_all()
 p.get_all_data()
 #short each
 for i in range(3):
@@ -143,7 +143,7 @@ for i in range(3):
 		check_spins *= -1
 	p.check_data(check_spins)
 
-search_devices()
+p.search_all()
 #short all
 p.get_all_data()
 p.save_states()
@@ -158,6 +158,7 @@ for i in range(12):
 	sleep(0.1)
 
 check_spins = -12
+search_devices()
 p.search_all()
 p.get_all_data()
 p.check_data(check_spins)

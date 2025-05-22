@@ -195,11 +195,11 @@ class Sensor_speed(Sensor):
 	def check_distance(self, spins):
 		ch = self._channels['counter']
 		counted = ch.value - ch.last_value
-		dist = spins * self._distance * self._toward
 		if self._is_first_check_distance:
 			self._is_first_check_distance = False
 			if spins < 0 and counted > 0 or (spins > 0 and counted < 0):
 				self._toward *= -1
+		dist = spins * self._distance * self._toward
 		if not self._is_reverible:
 			dist = abs(dist)
 		if not self.is_equal(counted, dist, self._distance_precision):
@@ -218,7 +218,7 @@ class Sensor_61(Sensor_speed):
 		self._tp = 61
 		self._distance = 25
 		self._distance_precision = 4
-		self._frequency = 11.8
+		self._frequency = 11.2 # 11.8 for 180, 13.6 for 150
 		self._frequency_precision = 1
 		
 
@@ -242,7 +242,7 @@ class Sensor_42(Sensor_speed):
 		self._distance = 5
 		self._distance_precision = 2
 		self._is_reverible = False
-		self._frequency = 233
+		self._frequency = 225
 		self._frequency_precision = 5
 
 
