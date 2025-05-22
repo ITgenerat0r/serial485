@@ -55,20 +55,23 @@ validator = Validator()
 mc_type = m.send(-1)
 print("type:", mc_type)
 
+def search_devices():
+	last_x = 0
+	for i in range(10):
+		print('.', end='')
+		x = p.search_all()
+		# if x == last_x:
+		# 	break
+		last_x = x
+		sleep(0.2)
+	print()
+	p.print_devices()
+	return last_x
 
 print("Searching devices...")
-last_x = 0
-for i in range(10):
-	print('.', end='')
-	x = p.search_all()
-	# if x == last_x:
-	# 	break
-	last_x = x
-	sleep(0.2)
-print()
-p.print_devices()
 
-if last_x == 0:
+
+if search_devices() == 0:
 	sys.exit(0)
 
 # p.get_all_data()
@@ -117,16 +120,17 @@ for i in range(2):
 	direction = rx
 	# init_data = data
 
-input('Press enter to continue...')
-
+# input('Press enter to continue...')
+search_devices()
+p.get_all_data()
 #short each
-for i in range(12):
+for i in range(3):
 	p.save_states()
 	check_spins = 2
 	rx = m.send(check_spins, until_response=True)
 	rx = m.send(0, until_response=True)
 	p.get_all_data()
-	if rx == b'1':
+	if rx == b'0':
 		check_spins *= -1
 	p.check_data(check_spins)
 
@@ -135,12 +139,13 @@ for i in range(12):
 	rx = m.send(check_spins, until_response=True)
 	rx = m.send(0, until_response=True)
 	p.get_all_data()
-	if rx == b'1':
+	if rx == b'0':
 		check_spins *= -1
 	p.check_data(check_spins)
 
-
+search_devices()
 #short all
+p.get_all_data()
 p.save_states()
 for i in range(12):
 	rx = m.send(1, until_response=True)
@@ -152,10 +157,9 @@ for i in range(12):
 	rx = m.send(0, until_response=True)
 	sleep(0.1)
 
-check_spins = 12
+check_spins = -12
+p.search_all()
 p.get_all_data()
-if rx == b'1':
-	check_spins *= -1
 p.check_data(check_spins)
 
 

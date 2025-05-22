@@ -589,7 +589,7 @@ class device():
 		res = []
 		for addr in self.__addresses:
 			res.append(self.get_data(addr))
-			sleep(0.3)
+			sleep(0.1)
 		return res
 
 	def save_states(self):

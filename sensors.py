@@ -114,7 +114,7 @@ class Sensor():
 		return -1
 
 	def during_check_data(self, data):
-		return True
+		return self.check_status()
 
 	def finally_check_data(self, data):
 		return self.check_status()
@@ -139,14 +139,19 @@ class Sensor_speed(Sensor):
 	def __init__(self):
 		super(Sensor_speed, self).__init__()
 		self._name = "Speed sensor"
-		self._max_frequency = 0
+
 		self._distance = 25
 		self._distance_precision = 1
 		self._is_reverible = True
-		self._frequency = 13.6
+		self._is_first_check_distance = True
+		self._toward = 1
+
+		self._frequency = 11.8
 		self._frequency_precision = 0.5
+		self._max_frequency = 0
 
 	def during_check_data(self, data):
+		self.check_status()
 		return self.is_speed_done()
 
 	def finally_check_data(self, data):
@@ -166,7 +171,7 @@ class Sensor_speed(Sensor):
 		current_frequency = self._channels['frequency'].value
 		counted = self._channels['counter'].value - self._channels['counter'].last_value
 		counter = self._channels['counter'].value
-		print(f"({self._addr}){self._serial_number}: {self._name:<12}/   Counter: {counter:>8}/   Counted: {counted:<8}/   Frequency: {current_frequency}")
+		print(f"({self._addr:>3}){self._serial_number:>8}: {self._name:<12}/   Counter: {counter:>8}/   Counted: {counted:<8}/   Frequency: {current_frequency}")
 		if current_frequency > self._max_frequency:
 			self._max_frequency = current_frequency
 		if current_frequency:
@@ -190,7 +195,11 @@ class Sensor_speed(Sensor):
 	def check_distance(self, spins):
 		ch = self._channels['counter']
 		counted = ch.value - ch.last_value
-		dist = spins * self._distance
+		dist = spins * self._distance * self._toward
+		if self._is_first_check_distance:
+			self._is_first_check_distance = False
+			if spins < 0 and counted > 0 or (spins > 0 and counted < 0):
+				self._toward *= -1
 		if not self._is_reverible:
 			dist = abs(dist)
 		if not self.is_equal(counted, dist, self._distance_precision):
@@ -208,8 +217,8 @@ class Sensor_61(Sensor_speed):
 		super(Sensor_61, self).__init__()
 		self._tp = 61
 		self._distance = 25
-		self._distance_precision = 2
-		self._frequency = 13.6
+		self._distance_precision = 4
+		self._frequency = 11.8
 		self._frequency_precision = 1
 		
 
@@ -233,8 +242,8 @@ class Sensor_42(Sensor_speed):
 		self._distance = 5
 		self._distance_precision = 2
 		self._is_reverible = False
-		self._frequency = 40
-		self._frequency_precision = 1
+		self._frequency = 233
+		self._frequency_precision = 5
 
 
 		
