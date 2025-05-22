@@ -19,7 +19,7 @@ class device():
 		self.__addr_counter = 103
 
 		self.__version = "2.1"
-		self.__response_delay = 0.2
+		self.__response_delay = 0.1
 
 		self.__log = False
 		self.__port_description = "USB Serial Port"
@@ -589,7 +589,7 @@ class device():
 		res = []
 		for addr in self.__addresses:
 			res.append(self.get_data(addr))
-			sleep(0.5)
+			sleep(0.3)
 		return res
 
 	def save_states(self):
@@ -613,15 +613,31 @@ class device():
 		print(f"Finally checks...")
 		for i in self.__devices:
 			sensor = self.__devices[i]['sensor']
-			if not sensor.finally_check_data(value):
-				print(f"\nCurrent errors:")
+			sensor.finally_check_data(value)
+			# 	print(f"\nCurrent errors:")
+			# errors = sensor.get_errors()
+			# if errors:
+			# 	print(sensor.get_title())
+			# 	# sensor.clear_errors()
+			# 	for err in errors:
+			# 		print(red_text(err))
+		print(f"Done!")
+
+	def get_errors(self):
+		res = {}
+		for i in self.__devices:
+			sensor = self.__devices[i]['sensor']
 			errors = sensor.get_errors()
 			if errors:
-				print(sensor.get_title())
+				res[sensor.get_title()] = sensor.get_errors()
+				# for err in errors:
+				# 	print(red_text(err))
 				sensor.clear_errors()
-				for err in errors:
-					print(red_text(err))
-		print(f"Done!")
+		return res
+
+	def get_all_devices(self):
+		return self.__devices
+
 
 
 	# def get_devices(self): # debug

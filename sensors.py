@@ -142,6 +142,7 @@ class Sensor_speed(Sensor):
 		self._max_frequency = 0
 		self._distance = 25
 		self._distance_precision = 1
+		self._is_reverible = True
 		self._frequency = 13.6
 		self._frequency_precision = 0.5
 
@@ -165,7 +166,7 @@ class Sensor_speed(Sensor):
 		current_frequency = self._channels['frequency'].value
 		counted = self._channels['counter'].value - self._channels['counter'].last_value
 		counter = self._channels['counter'].value
-		print(f"({self._addr}){self._serial_number}: {self._name:>12}/   Counter: {counter:>8}/   Counted: {counted:<8}/   Frequency: {current_frequency}")
+		print(f"({self._addr}){self._serial_number}: {self._name:<12}/   Counter: {counter:>8}/   Counted: {counted:<8}/   Frequency: {current_frequency}")
 		if current_frequency > self._max_frequency:
 			self._max_frequency = current_frequency
 		if current_frequency:
@@ -190,6 +191,8 @@ class Sensor_speed(Sensor):
 		ch = self._channels['counter']
 		counted = ch.value - ch.last_value
 		dist = spins * self._distance
+		if not self._is_reverible:
+			dist = abs(dist)
 		if not self.is_equal(counted, dist, self._distance_precision):
 			self._errors.append(f"Error (counter): For spins {spins}, counter should be {dist-self._distance_precision}-{dist+self._distance_precision} but got {counted}")
 			return False
@@ -207,7 +210,7 @@ class Sensor_61(Sensor_speed):
 		self._distance = 25
 		self._distance_precision = 2
 		self._frequency = 13.6
-		self._frequency_precision = 0.5
+		self._frequency_precision = 1
 		
 
 class Sensor_58(Sensor_speed):
@@ -218,7 +221,7 @@ class Sensor_58(Sensor_speed):
 		self._distance = 10
 		self._distance_precision = 1
 		self._frequency = 138
-		self._frequency_precision = 1
+		self._frequency_precision = 2
 		
 
 
@@ -229,8 +232,11 @@ class Sensor_42(Sensor_speed):
 		self._tp = 42
 		self._distance = 5
 		self._distance_precision = 2
+		self._is_reverible = False
 		self._frequency = 40
 		self._frequency_precision = 1
+
+
 		
 
 

@@ -100,7 +100,7 @@ if rx == b'1':
 #long
 direction = b'0'
 for i in range(2):
-	spins = 100
+	spins = 1000
 	p.save_states()
 	rx = m.send(4*spins)
 	p.get_all_data()
@@ -117,36 +117,73 @@ for i in range(2):
 	direction = rx
 	# init_data = data
 
+input('Press enter to continue...')
 
-sys.exit(0)
-
-
-
-
-
-#short
+#short each
 for i in range(12):
-	rx = m.send(2, until_response=True)
+	p.save_states()
+	check_spins = 2
+	rx = m.send(check_spins, until_response=True)
 	rx = m.send(0, until_response=True)
-	sleep(0.1)
+	p.get_all_data()
+	if rx == b'1':
+		check_spins *= -1
+	p.check_data(check_spins)
+
+	p.save_states()
+	check_spins = 1
+	rx = m.send(check_spins, until_response=True)
+	rx = m.send(0, until_response=True)
+	p.get_all_data()
+	if rx == b'1':
+		check_spins *= -1
+	p.check_data(check_spins)
+
+
+#short all
+p.save_states()
+for i in range(12):
 	rx = m.send(1, until_response=True)
 	rx = m.send(0, until_response=True)
 	sleep(0.1)
-#check counter & status
-data = validator.validate(p.get_all_data())
-print(show_map_table(data))
 
-for dt in data:
-	if dt['status'] != 0:
-		collected_data[addr]['err'].append(dt)
-	err = validator.check_dol_counter(400, dt['name'], dt['counter'])
-	if err:
-		collected_data[dt['addr']]['err'].append(err)
 
-print()
-print(collected_data)
-print()
-for i in collected_data:
-	if collected_data[i]['err']:
-		for e in collected_data[i]['err']:
-			print(f"Error: {e}")
+	rx = m.send(2, until_response=True)
+	rx = m.send(0, until_response=True)
+	sleep(0.1)
+
+check_spins = 12
+p.get_all_data()
+if rx == b'1':
+	check_spins *= -1
+p.check_data(check_spins)
+
+
+
+# finish
+
+counter = 0
+devices = p.get_all_devices()
+for dev_addr in devices:
+	sens = devices[dev_addr]['sensor']
+	errors = sens.get_errors()
+	sens.clear_errors()
+	if errors:
+		counter += 1
+		print(sens.get_title(), end='')
+		print(red_text(f" {len(errors)} errors!"))
+		for i in errors:
+			print(red_text(i))
+	else:
+		print(sens.get_title, end='')
+		print(green_text(f" Good!"))
+
+print(f"Good: {green_text(str(len(devices) - counter))}, Bad: {red_text(str(counter))}.")
+
+
+
+
+
+
+
+
