@@ -19,7 +19,7 @@ class device():
 		self.__addr_counter = 103
 
 		self.__version = "2.1"
-		self.__response_delay = 0.1
+		self.__response_delay = 0.05
 
 		self.__log = False
 		self.__port_description = "USB Serial Port"
@@ -70,7 +70,7 @@ class device():
 	def enable_log(self, l=True):
 		self.__log = l
 
-	def set_response_delay(self, new_delay=0.2):
+	def set_response_delay(self, new_delay=0.1):
 		self.__response_delay = new_delay
 
 
@@ -105,7 +105,7 @@ class device():
 		result = data + (crc&0xff).to_bytes(1) + chr(crc // 256).encode('latin-1')
 		return result
 
-	def __send(self, req):
+	def __send(self, req, limit=5):
 		if self.__ser:
 			tx = self.crc16(req)
 
@@ -117,6 +117,31 @@ class device():
 			rx = self.__ser.read_all()
 			self.__print("received: ")
 			self.print_bytes(rx)
+
+			# print('^'*20)
+			# rx_data = rx[:-2]
+			# rx_crc = rx[-2:]
+			# print("rx_data:", rx_data)
+			# self.print_bytes(rx_data)
+			# print("rx_crc:", rx_crc)
+			# self.print_bytes(rx_crc)
+			# print("crc:", crc)
+			# self.print_bytes(crc)
+			# print('v'*20)
+
+			if rx == b'':
+				print(red_text("Empty response!"))
+				rx = self.__send(req, limit - 1)
+			else:
+				crc = self.crc16(rx[:-2])
+				if crc[-2:] != rx[-2:]:
+					print(red_text("Wrong CRC!"))
+					# if self.__log:
+					print("Got:  ", rx)
+					print("Need: ", crc)
+					if limit > 0:
+						rx = self.__send(req, limit)
+
 			# self.__log = False # debug
 			return rx
 		return ""
@@ -292,7 +317,7 @@ class device():
 		return -1
 
 	def search_device(self):
-		rx = self.__send(b'\xf0\x64')
+		rx = self.__send(b'\xf0\x64', limit=2)
 		data = self.parse(rx)
 		if data:
 			a = int(rx[0])
@@ -589,7 +614,7 @@ class device():
 		res = []
 		for addr in self.__addresses:
 			res.append(self.get_data(addr))
-			sleep(0.1)
+			# sleep(0.1)
 		return res
 
 	def save_states(self):
