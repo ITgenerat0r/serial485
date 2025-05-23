@@ -131,7 +131,8 @@ class device():
 
 			if rx == b'':
 				print(red_text("Empty response!"))
-				rx = self.__send(req, limit - 1)
+				if limit > 0:
+					rx = self.__send(req, limit - 1)
 			else:
 				crc = self.crc16(rx[:-2])
 				if crc[-2:] != rx[-2:]:
