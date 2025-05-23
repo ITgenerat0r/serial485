@@ -103,7 +103,7 @@ if rx == b'1':
 #long
 direction = b'0'
 for i in range(2):
-	spins = 250
+	spins = 750
 	p.save_states()
 	rx = m.send(4*spins)
 	p.get_all_data()
@@ -180,7 +180,7 @@ for dev_addr in devices:
 		for i in errors:
 			print(red_text(i))
 	else:
-		print(sens.get_title, end='')
+		print(sens.get_title(), end='')
 		print(green_text(f" Good!"))
 
 print(f"Good: {green_text(str(len(devices) - counter))}, Bad: {red_text(str(counter))}.")

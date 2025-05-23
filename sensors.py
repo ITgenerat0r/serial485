@@ -114,7 +114,8 @@ class Sensor():
 		return -1
 
 	def during_check_data(self, data):
-		return self.check_status()
+		self.check_status()
+		return True
 
 	def finally_check_data(self, data):
 		return self.check_status()
@@ -176,6 +177,8 @@ class Sensor_speed(Sensor):
 			self._max_frequency = current_frequency
 		if current_frequency:
 			return False
+
+		print(f"{self.get_title()} - speed done!")
 		return True
 
 	def check_speed(self, speed):
@@ -229,7 +232,7 @@ class Sensor_58(Sensor_speed):
 		self._tp = 58
 		self._distance = 10
 		self._distance_precision = 1
-		self._frequency = 138
+		self._frequency = 111
 		self._frequency_precision = 2
 		
 

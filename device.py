@@ -70,7 +70,7 @@ class device():
 	def enable_log(self, l=True):
 		self.__log = l
 
-	def set_response_delay(self, new_delay=0.5):
+	def set_response_delay(self, new_delay=0.2):
 		self.__response_delay = new_delay
 
 
