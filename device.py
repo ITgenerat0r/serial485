@@ -639,7 +639,7 @@ class device():
 		print(f"Finally checks...")
 		for i in self.__devices:
 			sensor = self.__devices[i]['sensor']
-			if sensor.get_type() == 42 and external_value > 0: # Wrong way
+			if sensor.get_type() == 42 and external_value != 0: # Wrong way
 				sensor.finally_check_data(external_value)
 			else:
 				sensor.finally_check_data(value)
