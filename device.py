@@ -624,7 +624,7 @@ class device():
 			self.__devices[addr]['sensor'].save_values()
 		
 
-	def check_data(self, value):
+	def check_data(self, value, external_value = 0):
 		# value - data that sended to controller
 		print(f"Checks during process...")
 		while True:
@@ -639,7 +639,10 @@ class device():
 		print(f"Finally checks...")
 		for i in self.__devices:
 			sensor = self.__devices[i]['sensor']
-			sensor.finally_check_data(value)
+			if sensor.get_type() == 42 and external_value > 0: # Wrong way
+				sensor.finally_check_data(external_value)
+			else:
+				sensor.finally_check_data(value)
 			# 	print(f"\nCurrent errors:")
 			# errors = sensor.get_errors()
 			# if errors:

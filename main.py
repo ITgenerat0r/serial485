@@ -161,7 +161,7 @@ check_spins = -12
 search_devices()
 p.search_all()
 p.get_all_data()
-p.check_data(check_spins)
+p.check_data(check_spins, check_spins*3)
 
 
 
@@ -175,6 +175,7 @@ for dev_addr in devices:
 	sens.clear_errors()
 	if errors:
 		counter += 1
+		print()
 		print(sens.get_title(), end='')
 		print(red_text(f" {len(errors)} errors!"))
 		for i in errors:

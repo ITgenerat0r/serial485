@@ -87,6 +87,9 @@ class Sensor():
 	def get_address(self):
 		return self._addr
 
+	def get_type(self):
+		return self._tp
+
 
 	def save_values(self):
 		for _, ch in self._channels.items():
