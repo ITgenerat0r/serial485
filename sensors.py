@@ -181,7 +181,7 @@ class Sensor_speed(Sensor):
 		if current_frequency:
 			return False
 
-		print(f"{self.get_title()} - speed done!")
+		# print(f"{self.get_title()} - speed done!")
 		return True
 
 	def check_speed(self, speed):
