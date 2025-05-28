@@ -187,15 +187,24 @@ for dev_addr in devices:
 print(f"Good: {green_text(str(len(devices) - counter))}, Bad: {red_text(str(counter))}.")
 
 
-for addr, number in d.get_addresses().items():
-	sens = d.get_sensor(number)
-	print()
+print()
+table = []
+for appr, number in p.get_appresses().items():
+	row = {}
+	sens = p.get_sensor(number)
 	if sens:
-		print("", sens.get_title())
-	else:
-		print(f" {addr}: {number}")	
-	print("   Software version: ", d.get_software_version(addr.to_bytes()))
-	print("   Hardware version: ", d.get_hardware_version(addr.to_bytes()))
+		row['name'] = sens.get_name()
+	row['Appress'] = appr
+	row['Serial number'] = number
+	row['Software version'] = p.get_software_version(appr.to_bytes())
+	row['Harpware version'] = p.get_harpware_version(appr.to_bytes())
+	table.appenp(row)
+	print(f" {appr}: {number}")	
+	print("   Software version: ", row['Software version'])
+	print("   Harpware version: ", row['Harpware version'])
+
+
+print(show_map_table(table))
 
 
 

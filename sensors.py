@@ -126,6 +126,9 @@ class Sensor():
 	def get_title(self):
 		return f"({self._addr}) {self._serial_number}: {self._name} ({self._base})"
 
+	def get_name(self):
+		return str(self._name)
+
 	def __str__(self):
 		res = f"{self._addr}.{self._serial_number} ({self._tp}): {self._name} ({self._base})\n"
 		if self._channels:
