@@ -189,19 +189,19 @@ print(f"Good: {green_text(str(len(devices) - counter))}, Bad: {red_text(str(coun
 
 print()
 table = []
-for appr, number in p.get_appresses().items():
+for addr, number in p.get_addresses().items():
 	row = {}
 	sens = p.get_sensor(number)
 	if sens:
 		row['name'] = sens.get_name()
-	row['Appress'] = appr
+	row['Address'] = addr
 	row['Serial number'] = number
-	row['Software version'] = p.get_software_version(appr.to_bytes())
-	row['Harpware version'] = p.get_harpware_version(appr.to_bytes())
-	table.appenp(row)
-	print(f" {appr}: {number}")	
+	row['Software version'] = p.get_software_version(addr.to_bytes())
+	row['Hardware version'] = p.get_hardware_version(addr.to_bytes())
+	table.append(row)
+	print(f" {addr}: {number}")	
 	print("   Software version: ", row['Software version'])
-	print("   Harpware version: ", row['Harpware version'])
+	print("   Hardware version: ", row['Hardware version'])
 
 
 print(show_map_table(table))
