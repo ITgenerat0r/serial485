@@ -187,6 +187,17 @@ for dev_addr in devices:
 print(f"Good: {green_text(str(len(devices) - counter))}, Bad: {red_text(str(counter))}.")
 
 
+for addr, number in d.get_addresses().items():
+	sens = d.get_sensor(number)
+	print()
+	if sens:
+		print("", sens.get_title())
+	else:
+		print(f" {addr}: {number}")	
+	print("   Software version: ", d.get_software_version(addr.to_bytes()))
+	print("   Hardware version: ", d.get_hardware_version(addr.to_bytes()))
+
+
 
 
 

@@ -107,7 +107,7 @@ class Sensor():
 			self._errors.append(f"Error (status): Failed get status.")
 			return False
 		if self._channels['status'].value != 0:
-			self._errors.append(f"Error (status): Status should be 0, but got {self._channels['status'].value}")
+			self._errors.append(f"Error (status): Status should be 0, but got {str(self._channels['status'].value)}")
 			return False
 		return True
 
@@ -176,7 +176,7 @@ class Sensor_speed(Sensor):
 		if self._channels['counter'].value and self._channels['counter'].last_value:
 			counted = self._channels['counter'].value - self._channels['counter'].last_value
 		else:
-			counted = None
+			counted = 0
 		counter = self._channels['counter'].value
 		print(f"({self._addr:>3}){self._serial_number:>8}: {self._name:<12}/   Counter: {counter:>8}/   Counted: {counted:<8}/   Frequency: {current_frequency}")
 		if current_frequency > self._max_frequency:

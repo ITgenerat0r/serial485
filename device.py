@@ -132,9 +132,9 @@ class device():
 			if rx == b'':
 				print(red_text("Empty response!"))
 				if limit > 0:
-					print("Searhcing...")
+					# print("Searhcing...")
 					self.search_all()
-					print(self.__addresses)
+					# print(self.__addresses)
 					rx = self.__send(req, limit - 1)
 				else:
 					print(red_text(f"Over limit! ({req})"))
@@ -142,10 +142,11 @@ class device():
 			else:
 				crc = self.crc16(rx[:-2])
 				if crc[-2:] != rx[-2:]:
-					print(red_text("Wrong CRC!"))
-					# if self.__log:
-					print("Got:  ", rx)
-					print("Need: ", crc)
+					# print(red_text("Wrong CRC!"))
+					if self.__log:
+						print(red_text("Wrong CRC!"))
+						print("Got:  ", rx)
+						print("Need: ", crc)
 					if limit > 0:
 						rx = self.__send(req, limit)
 
@@ -673,6 +674,15 @@ class device():
 	def get_all_devices(self):
 		return self.__devices
 
+	def get_sensor(self, addr):
+		number = addr
+		if addr in self.__addresses:
+			number = self.__addresses[addr]
+		if number in self.__devices:
+			if 'sensor' in self.__devices[number]:
+				return self.__devices[number]['sensor']
+			else:
+				return None
 
 
 	# def get_devices(self): # debug
