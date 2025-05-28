@@ -132,7 +132,13 @@ class device():
 			if rx == b'':
 				print(red_text("Empty response!"))
 				if limit > 0:
+					print("Searhcing...")
+					self.search_all()
+					print(self.__addresses)
 					rx = self.__send(req, limit - 1)
+				else:
+					print(red_text(f"Over limit! ({req})"))
+					self.print_bytes(req, force=True)
 			else:
 				crc = self.crc16(rx[:-2])
 				if crc[-2:] != rx[-2:]:
@@ -318,7 +324,7 @@ class device():
 		return -1
 
 	def search_device(self):
-		rx = self.__send(b'\xf0\x64', limit=2)
+		rx = self.__send(b'\xf0\x64', limit=1)
 		data = self.parse(rx)
 		if data:
 			a = int(rx[0])
