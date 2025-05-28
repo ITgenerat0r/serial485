@@ -324,7 +324,7 @@ class device():
 		return -1
 
 	def search_device(self):
-		rx = self.__send(b'\xf0\x64', limit=1)
+		rx = self.__send(b'\xf0\x64', limit=2)
 		data = self.parse(rx)
 		if data:
 			a = int(rx[0])

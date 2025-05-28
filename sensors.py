@@ -173,7 +173,10 @@ class Sensor_speed(Sensor):
 
 	def is_speed_done(self):
 		current_frequency = self._channels['frequency'].value
-		counted = self._channels['counter'].value - self._channels['counter'].last_value
+		if self._channels['counter'].value and self._channels['counter'].last_value:
+			counted = self._channels['counter'].value - self._channels['counter'].last_value
+		else:
+			counted = None
 		counter = self._channels['counter'].value
 		print(f"({self._addr:>3}){self._serial_number:>8}: {self._name:<12}/   Counter: {counter:>8}/   Counted: {counted:<8}/   Frequency: {current_frequency}")
 		if current_frequency > self._max_frequency:
@@ -200,7 +203,10 @@ class Sensor_speed(Sensor):
 
 	def check_distance(self, spins):
 		ch = self._channels['counter']
-		counted = ch.value - ch.last_value
+		if ch.value and ch.last_value:
+			counted = ch.value - ch.last_value
+		else:
+			counted = 0
 		if self._is_first_check_distance:
 			self._is_first_check_distance = False
 			if spins < 0 and counted > 0 or (spins > 0 and counted < 0):
