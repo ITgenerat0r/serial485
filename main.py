@@ -22,6 +22,8 @@ help_text += f"  rs=*, where * is number for COM port for RS485 device (default 
 help_text += f"  mc=*, where * is number for COM port for controller (default = 5)\n"
 
 
+BORDER_LENGTH = 100
+
 for a in argv:
 	if a == "-help":
 		print(help_text)
@@ -84,6 +86,8 @@ for dt in data:
 		print("Status:", green_text(dt.get_status()))
 	else:
 		print("Status:", red_text(dt.get_status()))
+	print()
+	print()
 
 
 
@@ -101,9 +105,13 @@ if rx == b'1':
 # 	collected_data[addr]['err'] = []
 
 #long
+print("="*BORDER_LENGTH)
+print("STAGE 1")
+print("-"*BORDER_LENGTH)
 direction = b'0'
 for i in range(2):
 	spins = 750
+	# spins = 50 # debug
 	p.save_states()
 	rx = m.send(4*spins)
 	p.get_all_data()
@@ -123,7 +131,13 @@ for i in range(2):
 # input('Press enter to continue...')
 p.search_all()
 p.get_all_data()
+
+
+
 #short each
+print("="*BORDER_LENGTH)
+print("STAGE 2")
+print("-"*BORDER_LENGTH)
 for i in range(3):
 	p.save_states()
 	check_spins = 2
@@ -144,7 +158,14 @@ for i in range(3):
 	p.check_data(check_spins)
 
 p.search_all()
+
+
+
+
 #short all
+print("="*BORDER_LENGTH)
+print("STAGE 3")
+print("-"*BORDER_LENGTH)
 p.get_all_data()
 p.save_states()
 for i in range(12):

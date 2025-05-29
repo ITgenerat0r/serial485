@@ -1,4 +1,6 @@
 
+from includes import *
+
 FIELDS = {
 				'status':['Статус'], 
 				'counter':['Счетчик'], 
@@ -93,6 +95,8 @@ class Sensor():
 
 	def save_values(self):
 		for _, ch in self._channels.items():
+			if ch.value == None:
+				print(red_text(f"Value is None!"))
 			ch.last_value = ch.value
 
 	def is_equal(self, value_1, value_2, precision):
@@ -102,12 +106,12 @@ class Sensor():
 			return False
 		return True
 
-	def check_status(self):
+	def check_status(self, data=""):
 		if not 'status' in self._channels:
 			self._errors.append(f"Error (status): Failed get status.")
 			return False
 		if self._channels['status'].value != 0:
-			self._errors.append(f"Error (status): Status should be 0, but got {str(self._channels['status'].value)}")
+			self._errors.append(f"Error (status): data:({data}) Status should be 0, but got {str(self._channels['status'].value)}")
 			return False
 		return True
 
@@ -117,11 +121,11 @@ class Sensor():
 		return -1
 
 	def during_check_data(self, data):
-		self.check_status()
+		self.check_status(data)
 		return True
 
 	def finally_check_data(self, data):
-		return self.check_status()
+		return self.check_status(data)
 
 	def get_title(self):
 		return f"({self._addr}) {self._serial_number}: {self._name} ({self._base})"
@@ -158,12 +162,12 @@ class Sensor_speed(Sensor):
 		self._max_frequency = 0
 
 	def during_check_data(self, data):
-		self.check_status()
+		self.check_status(data)
 		return self.is_speed_done()
 
 	def finally_check_data(self, data):
 		res = True
-		if not self.check_status():
+		if not self.check_status(data):
 			res = False
 		if not self.check_speed(data):
 			return False
@@ -176,9 +180,11 @@ class Sensor_speed(Sensor):
 
 	def is_speed_done(self):
 		current_frequency = self._channels['frequency'].value
-		if self._channels['counter'].value and self._channels['counter'].last_value:
+		if self._channels['counter'].value != None and self._channels['counter'].last_value != None:
 			counted = self._channels['counter'].value - self._channels['counter'].last_value
 		else:
+			print(red_text(str(self._channels['counter'].value)))
+			print(red_text(str(self._channels['counter'].last_value)))
 			counted = 0
 		counter = self._channels['counter'].value
 		print(f"({self._addr:>3}){self._serial_number:>8}: {self._name:<12}/   Counter: {counter:>8}/   Counted: {counted:<8}/   Frequency: {current_frequency}")
@@ -206,9 +212,10 @@ class Sensor_speed(Sensor):
 
 	def check_distance(self, spins):
 		ch = self._channels['counter']
-		if ch.value and ch.last_value:
+		if ch.value != None and ch.last_value != None:
 			counted = ch.value - ch.last_value
 		else:
+			print(red_text(f"{str(ch.value)}, {str(ch.last_value)}"))
 			counted = 0
 		if self._is_first_check_distance:
 			self._is_first_check_distance = False
