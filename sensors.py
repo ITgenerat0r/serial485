@@ -251,7 +251,7 @@ class Sensor_58(Sensor_speed):
 		self._tp = 58
 		self._distance = 10
 		self._distance_precision = 1
-		self._frequency = 111
+		self._frequency = 111.5
 		self._frequency_precision = 2
 		
 
