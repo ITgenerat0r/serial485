@@ -28,7 +28,7 @@ help_text += f"  mc=*, where * is number for COM port for controller (default = 
 for a in argv:
 	if a == "-help":
 		print(help_text)
-		sys.exit()
+		sys.exit(0)
 	ind = a.find('=')
 	if ind >= 0:
 		key = a[:ind]
@@ -65,7 +65,7 @@ p.set_response_delay(0.1)
 # sleep(7) # for reset already setted addresses
 
 calibr = {}
-pas_types = [161]
+pas_types = [161, 165]
 
 
 
