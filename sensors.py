@@ -17,6 +17,10 @@ def choose_sensor(tp):
 			return Sensor_58()
 		case 61:
 			return Sensor_61()
+		case 161:
+			return Sensor_161()
+		case 165:
+			return Sensor_165()
 		case _:
 			return Sensor()
 
