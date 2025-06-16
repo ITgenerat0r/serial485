@@ -281,4 +281,46 @@ class Sensor_PAS(Sensor):
 	def __init__(self):
 		self._tp = 0
 		self._name = "PAS Sensor"
+		self._code_precision = 10
+
+	def during_check_data(self, data):
+		self.check_status(data)
+		return True
+
+	def finally_check_data(self, data):
+		res = True
+		if not self.check_status(data):
+			res = False
+		if not self.check_codes(data):
+			res = False
+		return res
+
+	def check_codes(self, data):
+		i_value = data&0xffff;
+	    u_value = (data>>16)&0xff;
+	    # u_value ^= 0xff;
+	    imp_value = (data>>24)&0xff;
+
+	    must_data = i_value
+		ch = self._channels['codes']
+		if not self.is_equal(must_data, ch.value, self._code_precision):
+			return False
+		return True
 		
+
+
+
+class Sensor_161(Sensor_speed):
+	"""docstring for Sensor_"""
+	def __init__(self):
+		super(Sensor_161, self).__init__()
+		self._tp = 161
+
+
+
+
+class Sensor_165(Sensor_speed):
+	"""docstring for Sensor_"""
+	def __init__(self):
+		super(Sensor_165, self).__init__()
+		self._tp = 165

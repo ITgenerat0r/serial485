@@ -10,7 +10,7 @@ from mc import *
 from cfg_manager import *
 from validator import *
 
-version = '1.0'
+version = '2.0'
 
 
 com_rs485 = 6
@@ -90,101 +90,125 @@ for dt in data:
 	print()
 
 
-
-rx = m.send(0, until_response=True) # change direction
-if rx == b'1':
-	print(m.send(0, until_response=True))
-
-
-# init_data = {}
-# collected_data = {}
-# for dt in data:
-# 	addr = dt['addr']
-# 	init_data[addr] = dt
-# 	collected_data[addr] = {}
-# 	collected_data[addr]['err'] = []
-
-#long
-print("="*BORDER_LENGTH)
-print("STAGE 1")
-print("-"*BORDER_LENGTH)
-direction = b'0'
-for i in range(2):
-	spins = 750
-	# spins = 50 # debug
-	p.save_states()
-	rx = m.send(4*spins)
-	p.get_all_data()
-	check_spins = 4 * spins
-	if direction == b'1':
-		check_spins *= -1
-	p.check_data(check_spins)
-
-	rx = m.get()
-	print(rx)
-
+if mc_type == "DOL":
 	rx = m.send(0, until_response=True) # change direction
-	print("Direction:", rx)
-	direction = rx
-	# init_data = data
-
-# input('Press enter to continue...')
-p.search_all()
-p.get_all_data()
+	if rx == b'1':
+		print(m.send(0, until_response=True))
 
 
+	# init_data = {}
+	# collected_data = {}
+	# for dt in data:
+	# 	addr = dt['addr']
+	# 	init_data[addr] = dt
+	# 	collected_data[addr] = {}
+	# 	collected_data[addr]['err'] = []
 
-#short each
-print("="*BORDER_LENGTH)
-print("STAGE 2")
-print("-"*BORDER_LENGTH)
-for i in range(3):
-	p.save_states()
-	check_spins = 2
-	rx = m.send(check_spins, until_response=True)
-	rx = m.send(0, until_response=True)
+	#long
+	print("="*BORDER_LENGTH)
+	print("STAGE 1")
+	print("-"*BORDER_LENGTH)
+	direction = b'0'
+	for i in range(2):
+		spins = 750
+		# spins = 50 # debug
+		p.save_states()
+		rx = m.send(4*spins)
+		p.get_all_data()
+		check_spins = 4 * spins
+		if direction == b'1':
+			check_spins *= -1
+		p.check_data(check_spins)
+
+		rx = m.get()
+		print(rx)
+
+		rx = m.send(0, until_response=True) # change direction
+		print("Direction:", rx)
+		direction = rx
+		# init_data = data
+
+	# input('Press enter to continue...')
+	p.search_all()
 	p.get_all_data()
-	if rx == b'0':
-		check_spins *= -1
-	p.check_data(check_spins)
 
-	p.save_states()
-	check_spins = 1
-	rx = m.send(check_spins, until_response=True)
-	rx = m.send(0, until_response=True)
+
+
+	#short each
+	print("="*BORDER_LENGTH)
+	print("STAGE 2")
+	print("-"*BORDER_LENGTH)
+	for i in range(3):
+		p.save_states()
+		check_spins = 2
+		rx = m.send(check_spins, until_response=True)
+		rx = m.send(0, until_response=True)
+		p.get_all_data()
+		if rx == b'0':
+			check_spins *= -1
+		p.check_data(check_spins)
+
+		p.save_states()
+		check_spins = 1
+		rx = m.send(check_spins, until_response=True)
+		rx = m.send(0, until_response=True)
+		p.get_all_data()
+		if rx == b'0':
+			check_spins *= -1
+		p.check_data(check_spins)
+
+	p.search_all()
+
+
+
+
+	#short all
+	print("="*BORDER_LENGTH)
+	print("STAGE 3")
+	print("-"*BORDER_LENGTH)
 	p.get_all_data()
-	if rx == b'0':
-		check_spins *= -1
-	p.check_data(check_spins)
-
-p.search_all()
-
-
+	p.save_states()
+	for i in range(12):
+		rx = m.send(1, until_response=True)
+		rx = m.send(0, until_response=True)
+		sleep(0.1)
 
 
-#short all
-print("="*BORDER_LENGTH)
-print("STAGE 3")
-print("-"*BORDER_LENGTH)
-p.get_all_data()
-p.save_states()
-for i in range(12):
-	rx = m.send(1, until_response=True)
-	rx = m.send(0, until_response=True)
-	sleep(0.1)
+		rx = m.send(2, until_response=True)
+		rx = m.send(0, until_response=True)
+		sleep(0.1)
 
+	check_spins = -12
+	search_devices()
+	p.search_all()
+	p.get_all_data()
+	p.check_data(check_spins, check_spins*3)
 
-	rx = m.send(2, until_response=True)
-	rx = m.send(0, until_response=True)
-	sleep(0.1)
-
-check_spins = -12
-search_devices()
-p.search_all()
-p.get_all_data()
-p.check_data(check_spins, check_spins*3)
-
-
+elif mc_type == "PAS" or mc_type == "":
+	for i in range(16):
+		step = 0x1000
+		print(hex(i*step))
+		rx = m.send(i*step)
+		sleep(1)
+		p.search_all()
+		p.get_all_data()
+		p.check_data(i*step)
+	for i in range(16):
+		step = 0x100000
+		print(hex(i*step))
+		rx = m.send(i*step)
+		sleep(1)
+		p.search_all()
+		p.get_all_data()
+		p.check_data(i*step)
+	for i in range(16):
+		step = 0x10000000
+		print(hex(i*step))
+		rx = m.send(i*step)
+		sleep(1)
+		p.search_all()
+		p.get_all_data()
+		p.check_data(i*step)
 
 # finish
 
