@@ -287,6 +287,10 @@ class Sensor_PAS(Sensor):
 		self._name = "PAS Sensor"
 		self._code_precision = 10
 
+		self._i_ratio = 1
+		self._u_ratio = 1
+		self._imp_ratio = 1
+
 	def during_check_data(self, data):
 		self.check_status(data)
 		return True
@@ -305,7 +309,7 @@ class Sensor_PAS(Sensor):
 	    # u_value ^= 0xff;
 	    imp_value = (data>>24)&0xff;
 
-	    must_data = i_value
+	    must_data = i_value * self._i_ratio + u_value * self._u_ratio + imp_value * self._imp_ratio
 		ch = self._channels['codes']
 		if not self.is_equal(must_data, ch.value, self._code_precision):
 			return False
