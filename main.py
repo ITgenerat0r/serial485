@@ -90,7 +90,7 @@ for dt in data:
 	print()
 
 
-if mc_type == "DOL":
+if mc_type == b"DOL":
 	rx = m.send(0, until_response=True) # change direction
 	if rx == b'1':
 		print(m.send(0, until_response=True))
@@ -184,7 +184,7 @@ if mc_type == "DOL":
 	p.get_all_data()
 	p.check_data(check_spins, check_spins*3)
 
-elif mc_type == "PAS" or mc_type == "":
+elif mc_type == b"PAS" or mc_type == b"":
 	for i in range(16):
 		step = 0x1000
 		print(hex(i*step))

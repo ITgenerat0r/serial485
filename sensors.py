@@ -5,7 +5,7 @@ FIELDS = {
 				'status':['Статус'], 
 				'counter':['Счетчик'], 
 				'frequency':['Частота'],
-				'codes':['codes', 'Коды']
+				'codes':['code', 'codes', 'Коды']
 			}
 
 
@@ -283,6 +283,7 @@ class Sensor_42(Sensor_speed):
 class Sensor_PAS(Sensor):
 	"""docstring for Sensor_PAS"""
 	def __init__(self):
+		super(Sensor_PAS, self).__init__()
 		self._tp = 0
 		self._name = "PAS Sensor"
 		self._code_precision = 10
@@ -291,9 +292,9 @@ class Sensor_PAS(Sensor):
 		self._u_ratio = 1
 		self._imp_ratio = 1
 
-	def during_check_data(self, data):
-		self.check_status(data)
-		return True
+	# def during_check_data(self, data):
+	# 	self.check_status(data)
+	# 	return True
 
 	def finally_check_data(self, data):
 		res = True
@@ -305,11 +306,11 @@ class Sensor_PAS(Sensor):
 
 	def check_codes(self, data):
 		i_value = data&0xffff;
-	    u_value = (data>>16)&0xff;
-	    # u_value ^= 0xff;
-	    imp_value = (data>>24)&0xff;
+		u_value = (data>>16)&0xff;
+		# u_value ^= 0xff;
+		imp_value = (data>>24)&0xff;
 
-	    must_data = i_value * self._i_ratio + u_value * self._u_ratio + imp_value * self._imp_ratio
+		must_data = i_value * self._i_ratio + u_value * self._u_ratio + imp_value * self._imp_ratio
 		ch = self._channels['codes']
 		if not self.is_equal(must_data, ch.value, self._code_precision):
 			return False
@@ -318,7 +319,7 @@ class Sensor_PAS(Sensor):
 
 
 
-class Sensor_161(Sensor_speed):
+class Sensor_161(Sensor_PAS):
 	"""docstring for Sensor_"""
 	def __init__(self):
 		super(Sensor_161, self).__init__()
@@ -327,7 +328,7 @@ class Sensor_161(Sensor_speed):
 
 
 
-class Sensor_165(Sensor_speed):
+class Sensor_165(Sensor_PAS):
 	"""docstring for Sensor_"""
 	def __init__(self):
 		super(Sensor_165, self).__init__()
