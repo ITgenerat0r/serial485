@@ -5,7 +5,7 @@ FIELDS = {
 				'status':['Статус'], 
 				'counter':['Счетчик'], 
 				'frequency':['Частота'],
-				'codes':['code', 'codes', 'Коды']
+				'code':['code', 'Коды']
 			}
 
 
@@ -286,11 +286,15 @@ class Sensor_PAS(Sensor):
 		super(Sensor_PAS, self).__init__()
 		self._tp = 0
 		self._name = "PAS Sensor"
-		self._code_precision = 10
+		self._code_precision_g = 0.5
 
-		self._i_ratio = 1
-		self._u_ratio = 1
+		self._i_ratio = 0.7991
+		self._i_precision_g = 0.5
+		self._u_ratio = 9
+		self._u_precision_g = 5
+		self._u_precision_a = 120
 		self._imp_ratio = 1
+		self._imp_precision_g = 1
 
 	# def during_check_data(self, data):
 	# 	self.check_status(data)
@@ -310,9 +314,21 @@ class Sensor_PAS(Sensor):
 		# u_value ^= 0xff;
 		imp_value = (data>>24)&0xff;
 
-		must_data = i_value * self._i_ratio + u_value * self._u_ratio + imp_value * self._imp_ratio
-		ch = self._channels['codes']
-		if not self.is_equal(must_data, ch.value, self._code_precision):
+		i_value *= self._i_ratio
+
+		u_value = u_value * u_value * 0.08 + 1.7 * u_value + 30
+
+		imp_value *= self._imp_ratio
+
+		precision = i_value / 100 * self._i_precision_g
+		precision += u_value / 100 * self._u_precision_g + self._u_precision_a
+		precision += imp_value / 100 * self._imp_precision_g
+
+		must_data = i_value + u_value
+		ch = self._channels['code']
+		print(f"<<<{must_data} - {ch.value} ({precision})>>>")
+		if not self.is_equal(must_data, ch.value, precision):
+			self._errors.append(f"Error (code): ({hex(data)}) Must be {must_data} but got {ch.value}!")
 			return False
 		return True
 		

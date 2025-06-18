@@ -185,27 +185,36 @@ if mc_type == b"DOL":
 	p.check_data(check_spins, check_spins*3)
 
 elif mc_type == b"PAS" or mc_type == b"":
+	delay = 2
+	print()
+	print("Stage 1. Ток:")
+	m.send(0)
+	sleep(1)
 	for i in range(16):
 		step = 0x1000
 		print(hex(i*step))
 		rx = m.send(i*step)
-		sleep(1)
+		sleep(delay)
 		p.search_all()
 		p.get_all_data()
 		p.check_data(i*step)
+	print()
+	print("Stage 2. Напряжение:")
 	for i in range(16):
 		step = 0x100000
 		print(hex(i*step))
 		rx = m.send(i*step)
-		sleep(1)
+		sleep(delay)
 		p.search_all()
 		p.get_all_data()
 		p.check_data(i*step)
+	print()
+	print("Stage 3. Импульс:")
 	for i in range(16):
 		step = 0x10000000
 		print(hex(i*step))
 		rx = m.send(i*step)
-		sleep(1)
+		sleep(delay)
 		p.search_all()
 		p.get_all_data()
 		p.check_data(i*step)
