@@ -24,4 +24,6 @@ void loop() {
   // Отправляем значение в Serial Monitor
   Serial.print("Аналоговое значение: ");
   Serial.println(key_value);
+
+  delay(1000);
 }
